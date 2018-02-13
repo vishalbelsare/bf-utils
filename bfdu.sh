@@ -7,8 +7,6 @@
 # 
 #   DESCRIPTION:  run du -s and subtract directory sizes (4K each))
 # 
-#       OPTIONS:  ---
-#  REQUIREMENTS:  ---
 #       UPDATES:  171208: added syntax check
 #                 171214: ensured argument was type directory
 #                 171215: switched to printf statement for more format control
