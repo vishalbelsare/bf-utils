@@ -5,3 +5,4 @@ old/
 results/
 screenshots/
 .ipynb_checkpoints/
+*.ipynb
