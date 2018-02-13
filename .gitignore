@@ -1,0 +1,7 @@
+dev/
+docs/
+notebooks/
+old/
+results/
+screenshots/
+.ipynb_checkpoints/
