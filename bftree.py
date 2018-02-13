@@ -42,7 +42,7 @@ import sys
 import getopt
 bf = Blackfynn()  # use 'default' profile
 # extensions unknown to Blackfynn
-extensions = ['fcs','bw', 'pptx', 'metadata']
+extensions = ['tif', 'fcs','bw', 'pptx', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =   "bftree -d <dataset> \n"

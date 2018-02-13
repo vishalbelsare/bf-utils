@@ -43,7 +43,7 @@ import getopt
 import os
 import time
 # extensions unknown to Blackfynn
-extensions = ['fcs','bw', 'pptx', 'metadata']
+extensions = ['tif', 'fcs','bw', 'pptx', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "bfsync -d <dataset> \n"

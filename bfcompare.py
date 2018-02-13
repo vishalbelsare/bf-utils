@@ -34,7 +34,7 @@ import os
 import sys
 import getopt
 # extensions unknown to Blackfynn
-extensions = ['fcs', 'bw', 'pptx', 'metadata']
+extensions = ['tif', 'fcs', 'bw', 'pptx', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "bfcompare -d <dataset>\n"
