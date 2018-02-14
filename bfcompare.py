@@ -38,7 +38,7 @@ extensions = ['tif', 'fcs', 'bw', 'pptx', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "bfcompare -d <dataset>\n"
-    SYNTAX =  "          -c <compared dataset>\n"
+    SYNTAX += "          -c <compared dataset>\n"
     SYNTAX += "          -a (compare with all datasets)\n"
     SYNTAX += "          -p <local path to compare>\n"
     SYNTAX += "          -i (case-insensitive compares)\n"
