@@ -8,17 +8,19 @@
 #   DESCRIPTION:  move something to another directory  
 # 
 #   OPTIONS:      -d <dataset>  (show contents of dataset)
-#                 -s <source path> bottom of path is moved
+#                 -f <file containing datasets>
+#                 --all (do move on all HPAP datasets)
+#                 -S <source path> bottom of path is moved
 #                 -D <destination path> move source here
 #                 -l  (list all available datasets)
 #                 -h  (show help)
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
-#       UPDATES:  
+#       UPDATES:  180215: Added -f option 
 #        AUTHOR:  Pete Schmitt (discovery), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.1.0
+#       VERSION:  0.2.0
 #       CREATED:  Wed Feb 14 13:27:32 EST 2018
-#      REVISION:  
+#      REVISION:  Thu Feb 15 11:49:51 EST 2018
 #===============================================================================
 
 from blackfynn import Blackfynn
