@@ -32,15 +32,15 @@ import getopt
 import os
 ###############################################################################
 def syntax():
-    SYNTAX =  "\nbfdelete -p <dataset path> "
-    SYNTAX += "(removes rightmost collection in path)\n"
-    SYNTAX += "         -d <dataset>\n"
+    SYNTAX =  "\nbfdelete -d <dataset>\n"
     SYNTAX += "         --all (apply to ALL HPAP datasets)\n"
     SYNTAX += "         -f <file containing datasets>\n"
+    SYNTAX += "         -p <dataset path> "
+    SYNTAX += "(removes rightmost collection in path)\n"
     SYNTAX += "         --force (remove collection with content)\n\n"
     SYNTAX += "         -h (help)\n"
     SYNTAX += "         -l (list datasets)\n\n"
-    SYNTAX += "Note: -d, -a and -f are mutually exclusive\n"
+    SYNTAX += "Note: -d, -f and --all are mutually exclusive\n"
     return SYNTAX
 ###############################################################################
 def printf(format, *args):
