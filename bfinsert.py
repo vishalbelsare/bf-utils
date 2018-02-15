@@ -3,29 +3,28 @@
 #
 #         FILE:  bfinsert.py
 #
-#        USAGE:  ./bfinsert -d <dataset> -c <collection> -p <path> 
+#        USAGE:  ./bfinsert -d <dataset> -p <path> 
 #                           -l (list datasets)
 #                           -h (help)
 #
 #  DESCRIPTION: Insert collection into given path  
 #
-#      OPTIONS:  -p <dataset path> [-d | -a | -f] 
+#      OPTIONS:  -p <dataset path>
 #                -d <dataset> (update single dataset)
-#                -a (apply to all HPAP datasets)
+#                --all (apply to all HPAP datasets)
 #                -f <file> (use file containing datasets to update)
 #                -l (list all datasets)
 #                -h (help)
-# REQUIREMENTS:  ---
-#         BUGS:  ---
 #      UPDATES:  171005: added error checking in collection path
 #                171006: collection path can start with / or not
 #                171009: -p includes collection to insert at bottom of path
 #                171103: Added usage of short names for HPAP datasets
+#                180215: unified options
 #       AUTHOR:  Pete Schmitt (discovery), <pschmitt@upenn.edu>
 #      COMPANY:  University of Pennsylvania
-#      VERSION:  0.2.0
+#      VERSION:  0.2.1
 #      CREATED:  10/02/2017 14:13:54 EDT
-#     REVISION:  Fri Nov  3 14:35:36 EDT 2017
+#     REVISION:  Thu Feb 15 13:25:30 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -58,15 +57,14 @@ def get_datasets():
     return dsets, dsdict
 ###############################################################################
 def syntax():
-    SYNTAX =  "bfinsert -p <dataset path> "
-    SYNTAX += "[-d | -a | -f] (inserts righmost part of path)\n"
-    SYNTAX += "         -d <dataset>\n"
-    SYNTAX += "         -a (apply to ALL HPAP datasets)\n"
+    SYNTAX =  "\nbfinsert -d <dataset\n"
+    SYNTAX += "         --all (apply to ALL HPAP datasets)\n"
     SYNTAX += "         -f <file containing datasets>\n"
-    SYNTAX += "\n"
-    SYNTAX += "bfinsert -h (help)\n"
-    SYNTAX += "bfinsert -l (list datasets)\n\n"
-    SYNTAX += "Note: -d, -a and -f are mutually exclusive.\n"
+    SYNTAX += "         -p <dataset path> "
+    SYNTAX += "(inserts rightmost part of path)\n\n"
+    SYNTAX += "         -h (help)\n"
+    SYNTAX += "         -l (list datasets)\n\n"
+    SYNTAX += "Note: -d, -f and --all are mutually exclusive.\n"
     return SYNTAX
 ###############################################################################
 def db_exists(dset,dsets):
@@ -137,8 +135,7 @@ argv = sys.argv[1:]
 # resolve options
 #################
 try:
-    opts, args = getopt.getopt(argv, "halp:d:f:",
-          ['collection=', 'file=', 'help', 'list', 'path=', 'dataset=', 'all'])
+    opts, args = getopt.getopt(argv, "hlp:d:f:", ['all'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -149,32 +146,32 @@ for ds in dsets:
     bfdsets.append(dsdict[ds[0]])
 
 for opt, arg in opts:
-    if opt in ('-h', '--help'):
+    if opt in '-h':
         printf("%s\n", syntax())
         sys.exit()
-    elif opt in ('-a', '--all'):
+    elif opt in '--all':
         hpap_dsets = list()
         ALL = True
         for ds in dsets:
             if 'HPAP-' in ds[0]: hpap_dsets.append(ds[2])
         hpap_dsets.sort(key = lambda x: x.name)
-    elif opt in ('-p', '--path'):
+    elif opt in '-p':
         insert_where = arg
         # remove leading / if it exists
         if insert_where[0] == '/': insert_where = insert_where[1:]
         pathlist = insert_where.split('/')
         collection = pathlist[-1]
         insert_where = '/'.join(pathlist[:-1])
-    elif opt in ('-l', '--list'):
+    elif opt in '-l':
         for ds in dsets: printf("%s\n", ds[0])
         sys.exit()
-    elif opt in ('-d', '--dataset'):
+    elif opt in '-d':
         dset = dsdict[arg]
         DATASET = True
         if not db_exists(dset,bfdsets):
             printf("dataset %s does not exist on the server.\n", dset)
             sys.exit()
-    elif opt in ('-f', '--file'):
+    elif opt in '-f':
         filename = arg
         FILE = True
         if not file_exists(filename):
@@ -199,4 +196,3 @@ elif ALL:
 
 elif DATASET:
     insert_collection(dset, collection, insert_where)
-

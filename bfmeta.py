@@ -3,18 +3,11 @@
 #
 #         FILE:  bfmeta.py
 #
-#        USAGE:  ./bfmeta -m <metadata pair> -p <path>  [-d | -a | -f]
-#                         -l (list datasets)
-#                         -h (help)
+#        USAGE:  ./bfmeta options arguments
 #
 #  DESCRIPTION: Insert metadata into base object of given path  
 #
-#      OPTIONS:  -p <dataset path> [-d | -a | -f] 
-#                -d <dataset> (update single dataset)
-#                -a (apply to all HPAP datasets)
-#                -f <file> (use file containing datasets to update)
-#                -l (list all datasets)
-#                -h (help)
+#      OPTIONS:  see options in syntax() function
 # REQUIREMENTS:  python2, blackfynn library and license
 #      UPDATES:  171012: added a show option
 #                171016: added a remove option
@@ -22,11 +15,12 @@
 #                171106: added short name usage for HPAP datasets
 #                        added show (--show) support for -a and -f
 #                171205: removed support for add/del metadata from dataset
+#                180215: unified options
 #       AUTHOR:  Pete Schmitt (discovery), <pschmitt@upenn.edu>
 #      COMPANY:  University of Pennsylvania
-#      VERSION:  0.2.1
+#      VERSION:  0.2.2
 #      CREATED:  Fri Oct 13 11:06:25 EDT 2017
-#     REVISION:  Tue Dec  5 13:07:11 EST 2017
+#     REVISION:  Thu Feb 15 13:49:24 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -43,24 +37,22 @@ def printf(format, *args):
     sys.stdout.flush()
 ###############################################################################
 def syntax():
-    SYNTAX =  "bfmeta -p <dataset path> (path to collection required)\n"
-    SYNTAX += "       -k <metadata key>  -v <metadata value> \n"
-    SYNTAX += "       -m <metadata file of key:value pairs> (-k -v ignored) \n"
-    SYNTAX += "       -d <dataset>\n"
-    SYNTAX += "       -c <category> (default = Blackfynn)\n"
-    SYNTAX += "       -t <data type> (integer, string, date, double)\n"
-    SYNTAX += "       -a (apply to ALL HPAP datasets)\n"
+    SYNTAX =  "\nbfmeta -d <dataset>\n"
+    SYNTAX += "       --all (apply to ALL HPAP datasets)\n"
     SYNTAX += "       -f <file containing datasets>\n"
-    SYNTAX += "       -r (remove instead of insert meta data)\n"
-    SYNTAX += "       --show (show meta data, -k -v -m options ignored)\n"
-    SYNTAX += "\n"
-    SYNTAX += "bfmeta -h (help)\n"
-    SYNTAX += "bfmeta -l (list datasets)\n\n"
-    SYNTAX += "Notes: Adds, removes, or shows metadata of right part of path\n"
-    SYNTAX += "       It is no longer possible to add/remove metadata from "
-    SYNTAX += "the dataset itself\n"
+    SYNTAX += "       -k <metadata key>\n"
+    SYNTAX += "       -v <metadata value> \n"
+    SYNTAX += "       -m <metadata file of key:value pairs> (-k -v ignored) \n"
+    SYNTAX += "       -c <category> (default = Blackfynn)\n"
+    SYNTAX += "       -p <dataset path> (path to collection required)\n"
+    SYNTAX += "       -t <data type> (integer, string, date, double)\n"
+    SYNTAX += "       --remove (remove metadata instead of adding metadata)\n"
+    SYNTAX += "       --show (show metadata)\n\n"
+    SYNTAX += "       -h (help)\n"
+    SYNTAX += "       -l (list datasets)\n\n"
+    SYNTAX += "Notes: Adds, removes, or shows metadata to right part of path\n"
     SYNTAX += '       Date format = "MM/DD/YYYY HH:MM:SS"\n' 
-    SYNTAX += '       Options -f, -a and -d are mutually exclusive\n' 
+    SYNTAX += '       Options -d, -f and --all are mutually exclusive\n' 
     return SYNTAX
 ###############################################################################
 def get_datasets():
@@ -206,7 +198,8 @@ argv = sys.argv[1:]
 # resolve options
 #################
 try:
-    opts, args = getopt.getopt(argv, "halrst:c:p:d:f:k:v:m:", ['help','show'])
+    opts, args = getopt.getopt(argv, "hlt:c:p:d:f:k:v:m:", 
+            ['remove','show','all'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -217,10 +210,10 @@ for ds in dsets:
     bfdsets.append(dsdict[ds[0]])
 
 for opt, arg in opts:
-    if opt in ('-h', '--help'):
+    if opt in '-h':
         printf("%s\n", syntax())
         sys.exit()
-    elif opt == '-a':
+    elif opt == '--all':
         hpap_dsets = list()
         ALL = True
         for ds in dsets:
@@ -236,9 +229,9 @@ for opt, arg in opts:
         PATH = True
     elif opt == '-c':
         CATEGORY = arg
-    elif opt == '-r':
+    elif opt == '--remove':
         ADD = False
-    elif opt in ('-s', '--show'):
+    elif opt in '--show':
         SHOW = True
     elif opt == '-t':
         TYPE = arg
@@ -253,7 +246,7 @@ for opt, arg in opts:
         except:
             printf("dataset, %s, does not exist on server.\n", arg)
             sys.exit()
-    elif opt in ('-f', '--file'):
+    elif opt in '-f':
         filename = arg
         FILE = True
         if not file_exists(filename):
