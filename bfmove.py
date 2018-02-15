@@ -146,6 +146,7 @@ for opt, arg in opts:
             sys.exit()
     elif opt in '-d':
         DATASET = True
+        dsetname = arg
         try:
             dset = bf.get_dataset(dsdict[arg])
         except:
@@ -157,7 +158,7 @@ if not ALL and SOURCE and DESTINATION and DATASET:
     destination = locate_path(dset, dest)
     source = locate_path(dset, src)
     bf.move(destination, source)
-    printf("%s moved to %s\n", src, dest)
+    printf("%s: %s moved to %s\n", dsetname, src, dest)
 
 # Using a file containing Dataset names
 elif not ALL and not DATASET and FILE:
@@ -172,7 +173,7 @@ elif not ALL and not DATASET and FILE:
         destination = locate_path(dset, dest)
         source = locate_path(dset, src)
         bf.move(destination, source)
-        printf("%s moved to %s\n", src, dest)
+        printf("%s: %s moved to %s\n", ds, src, dest)
 
 # Do move on ALL HPAP datasets 
 elif ALL and not DATASET:
@@ -182,4 +183,4 @@ elif ALL and not DATASET:
         destination = locate_path(dset, dest)
         source = locate_path(dset, src)
         bf.move(destination, source)
-        printf("%s moved to %s\n", src, dest)
+        printf("%s: %s moved to %s\n", ds[0], src, dest)
