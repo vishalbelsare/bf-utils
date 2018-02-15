@@ -27,11 +27,12 @@
 #                 171117: --realdata now shows uploaded filename and extension
 #                         --data now shows BF filename and uploaded extension
 #                 171121: created exceptions for unknown extensions
+#                 180215: unified options
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
 #       VERSION:  0.5.2
 #       CREATED:  09/06/2017 16:54:33 EDT
-#      REVISION:  Tue Nov 21 12:20:36 EST 2017
+#      REVISION:  Thu Feb 15 14:21:45 EST 2018
 #===============================================================================
 
 from blackfynn import Blackfynn
@@ -45,14 +46,15 @@ bf = Blackfynn()  # use 'default' profile
 extensions = ['tif', 'fcs','bw', 'pptx', 'metadata']
 ###############################################################################
 def syntax():
-    SYNTAX =   "bftree -d <dataset> \n"
+    SYNTAX =   "\nbftree -d <dataset> \n"
+    SYNTAX +=  "       --all (loop on all HPAP datasets)\n"
     SYNTAX +=  "       -p <path to start tree>\n"
-    SYNTAX +=  "       -a, --all (loop on all HPAP datasets)\n"
     SYNTAX +=  "       --data (show packages in output)\n"
     SYNTAX +=  "       --realdata (show packages as uploaded names)\n"
     SYNTAX +=  "       --nocolor (no colorful output)\n\n"
     SYNTAX +=  "       -h (help)\n"
-    SYNTAX +=  "       -l (list datasets)\n"
+    SYNTAX +=  "       -l (list datasets)\n\n"
+    SYNTAX +=  "Note: -d and --all are mutually exclusive\n"
     return SYNTAX
 ###############################################################################
 def printf(format, *args):
@@ -168,8 +170,8 @@ if len(sys.argv) < 2:
 argv = sys.argv[1:]
 
 try:
-    opts, args = getopt.getopt(argv, "afhld:p:",
-            ['realdata','all', 'nocolor', 'help', 'list', 'data'])
+    opts, args = getopt.getopt(argv, "hld:p:",
+            ['realdata', 'all', 'nocolor', 'data'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -177,9 +179,9 @@ except getopt.GetoptError:
 dsets, dsdict = get_datasets()
 
 for opt, arg in opts:
-    if opt == '-f' or opt == '--data':
+    if opt == '--data':
         FILE=True
-    elif opt in ('-a','--all'):
+    elif opt in '--all':
         ALL = True
     elif opt == '-p':
         path = arg
@@ -192,11 +194,11 @@ for opt, arg in opts:
     elif opt == '-h':
         printf("%s\n", syntax())
         sys.exit()
-    elif opt in ('-l', '--list'):
+    elif opt in '-l':
         for ds in dsets:
             printf("%s\n",ds[0])
         sys.exit()
-    elif opt in ('-d', '--dataset'):
+    elif opt in '-d':
         DATASET = True
         try:
             dset = bf.get_dataset(dsdict[arg])

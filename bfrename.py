@@ -17,11 +17,12 @@
 # REQUIREMENTS:  python2, blackfynn python library and license key
 #      UPDATES:  171006: collection path can start with / or not
 #                171113: renames collections only
+#                180215: unified options
 #       AUTHOR:  Pete Schmitt (discovery), <pschmitt@upenn.edu>
 #      COMPANY:  University of Pennsylvania
 #      VERSION:  0.1.1
 #      CREATED:  Fri Oct  6 13:36:33 EDT 2017
-#     REVISION:  Mon Nov 13 16:26:51 EST 2017
+#     REVISION:  Thu Feb 15 14:05:46 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -31,14 +32,15 @@ import getopt
 import os
 ###############################################################################
 def syntax():
-    SYNTAX =  "bfrename -p <dataset path> "
+    SYNTAX =  "\nbfrename -d <dataset>\n"
+    SYNTAX += "         --all (apply to ALL HPAP datasets)\n"
+    SYNTAX += "         -f <file containing datasets>\n"
+    SYNTAX += "         -p <dataset path> "
     SYNTAX += "(renames rightmost object in path)\n"
-    SYNTAX += "         -n <new object name>\n"
-    SYNTAX += "         -d <dataset>\n"
-    SYNTAX += "         -a (apply to ALL HPAP datasets)\n"
-    SYNTAX += "         -f <file containing datasets>\n\n"
+    SYNTAX += "         -n <new object name>\n\n"
     SYNTAX += "         -h (help)\n"
-    SYNTAX += "         -l (list datasets)\n"
+    SYNTAX += "         -l (list datasets)\n\n"
+    SYNTAX +=  "Note: -d, -f and --all are mutually exlusive\n"
     return SYNTAX
 ###############################################################################
 def printf(format, *args):
@@ -127,9 +129,7 @@ argv = sys.argv[1:]
 # resolve options
 #################
 try:
-    opts, args = getopt.getopt(argv, "Fhaln:p:d:f:",
-          ['force', 'collection=', 'file=', 'help', \
-           'list', 'path=', 'dataset=', 'all'])
+    opts, args = getopt.getopt(argv, "hln:p:d:f:", ['all'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -137,31 +137,31 @@ except getopt.GetoptError:
 dsets, dsdict = get_datasets()
 
 for opt, arg in opts:
-    if opt in ('-h', '--help'):
+    if opt in '-h':
         printf("%s\n", syntax())
         sys.exit()
-    elif opt in ('-a', '--all'):
+    elif opt in '--all':
         hpap_dsets = list()
         ALL = True
         for ds in dsets:
             if 'HPAP-' in ds[0]: hpap_dsets.append(ds[2])
         hpap_dsets.sort(key = lambda x: x.name)
-    elif opt in ('-n'):
+    elif opt in '-n':
         newname = arg
-    elif opt in ('-p', '--path'):
+    elif opt in '-p':
         path = arg
-    elif opt in ('-l', '--list'):
+    elif opt in '-l':
         for ds in dsets:
             printf("%s\n", ds[0])
         sys.exit()
-    elif opt in ('-d', '--dataset'):
+    elif opt in '-d':
         DATASET = True
         if not ds_exists(arg, dsets):
             printf("Dataset, %s, does NOT exist.\n", arg)
             sys.exit()
         else:
             dset = dsdict[arg]
-    elif opt in ('-f', '--file'):
+    elif opt in '-f':
         filename = arg
         FILE = True
         if not file_exists(filename):

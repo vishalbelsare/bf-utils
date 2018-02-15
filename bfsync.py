@@ -15,6 +15,7 @@
 #                 --nodata
 #                 --mirror
 #                 --refresh
+#                 --norefresh
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
 #       UPDATES:  171018: added --nodata
 #                 171102: added ability to use short names for HPAP datasets
@@ -28,11 +29,12 @@
 #                 171117: fixed bug with --mirror and . directory
 #                 171121: created exceptions for unknown extensions
 #                 171206: no longer create local directories in exception list
+#                 180215: unified options
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
 #       VERSION:  0.5.3
 #       CREATED:  Mon Oct  9 19:56:00 EDT 2017
-#      REVISION:  Thu Dec  7 14:58:59 EST 2017
+#      REVISION:  Thu Feb 15 14:13:59 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -46,19 +48,19 @@ import time
 extensions = ['tif', 'fcs','bw', 'pptx', 'metadata']
 ###############################################################################
 def syntax():
-    SYNTAX =  "bfsync -d <dataset> \n"
+    SYNTAX =  "\nbfsync -d <dataset> \n"
     SYNTAX += "       -p <output path for local dataset storage> "
     SYNTAX += "(default is $PWD)\n"
     SYNTAX += "       -e <file containing exception paths>\n"
     SYNTAX += "       --nodata (do not include data)\n"
     SYNTAX += "       --mirror (remove local data/directories to mirror "
     SYNTAX += "dataset)\n"
-    SYNTAX += "       --refresh (send signal to hpap data website to "
-    SYNTAX += "refresh)\n"
+    SYNTAX += "       --refresh (send a signal to hpap data website to "
+    SYNTAX += "refresh. this is the default)\n"
     SYNTAX += "       --norefresh (do not send signal to hpap data website to "
     SYNTAX += "refresh)\n\n"
     SYNTAX += "       -h (help)\n"
-    SYNTAX += "       -l (list datasets)"
+    SYNTAX += "       -l (list datasets)\n"
     return SYNTAX
 ###############################################################################
 def printf(format, *args):
