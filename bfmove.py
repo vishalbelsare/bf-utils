@@ -34,7 +34,7 @@ bf = Blackfynn()  # use 'default' profile
 def syntax():
     SYNTAX =   "\nbfmove -d <dataset> \n"
     SYNTAX +=  "       --all (loop on all HPAP datasets)\n"
-    SYNTAX +=  "       -f (file containing datasets)\n"
+    SYNTAX +=  "       -f <file containing datasets>\n"
     SYNTAX +=  "       -S <source path>\n"
     SYNTAX +=  "       -D <destination path> (MUST be directory)\n\n"
     SYNTAX +=  "       -h (help)\n"
