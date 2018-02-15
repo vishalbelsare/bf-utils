@@ -21,11 +21,12 @@
 #                         Added --data to allow comparing data in the path
 #                 171103: Added support for short HPAP dataset names
 #                 171121: created exceptions for unknown extensions
+#                 180214: unified options
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  2.0.1
+#       VERSION:  2.0.2
 #       CREATED:  09/12/2017 18:00:00 EDT
-#      REVISION:  Tue Nov 21 12:43:12 EST 2017
+#      REVISION:  Wed Feb 14 19:06:15 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -39,13 +40,13 @@ extensions = ['tif', 'fcs', 'bw', 'pptx', 'metadata']
 def syntax():
     SYNTAX =  "\nbfcompare -d <dataset>\n"
     SYNTAX += "          -c <compared dataset>\n"
-    SYNTAX += "          -a (compare with all datasets)\n"
+    SYNTAX += "          --all (compare with all datasets)\n"
     SYNTAX += "          -p <local path to compare>\n"
     SYNTAX += "          -i (case-insensitive compares)\n"
     SYNTAX += "          --data (also compare data)\n\n"
     SYNTAX += "          -h (help)\n"
     SYNTAX += "          -l (list datasets)\n"
-    SYNTAX += "\nNote: -c, -p and -a are mutually exclusive.\n"
+    SYNTAX += "\nNote: -c, -p and --all are mutually exclusive.\n"
     return SYNTAX
 ###############################################################################
 def printf(format, *args):
@@ -189,8 +190,8 @@ if len(sys.argv) < 2:
 argv = sys.argv[1:]
 
 try:
-    opts, args = getopt.getopt(argv, "ahilp:d:c:",
-            ['data', 'compare', 'help', 'list'])
+    opts, args = getopt.getopt(argv, "hilp:d:c:",
+            ['all', 'data'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -210,20 +211,20 @@ for opt, arg in opts:
         except:
             printf("Dataset, %s, does NOT exist.\n", arg)
             sys.exit()
-    elif opt == '-a':
+    elif opt == '--all':
         ALL = True
         dsets = []
         for ds in bf.datasets():
             if 'HPAP-' in ds.name: dsets.append(ds)
         dsets.sort(key = lambda x: x.name)
-    elif opt in ('-l', '--list'):
+    elif opt in ('-l'):
         for ds in dsets: printf("%s\n", ds[0])
         sys.exit()
     elif opt in ('--data'):
         FILE = True
     elif opt in ('-p'):
         PATH = arg
-    elif opt in ('-c', '--compared'):
+    elif opt in ('-c'):
         try:
             cdset = bf.get_dataset(dsdict[arg])
         except:

@@ -3,15 +3,15 @@
 #
 #         FILE:  bfdelete.py
 #
-#        USAGE:  ./bfdelete -d <dataset> -c <collection> -p <path> 
+#        USAGE:  ./bfdelete -d <dataset>  -p <path> 
 #                           -l (list datasets)
 #                           -h (help)
 #
 #  DESCRIPTION: Insert collection into given path  
 #
-#      OPTIONS:  -c <collection to delete> -p <dataset path> [-d | -a | -f] 
+#      OPTIONS:  -p <dataset path> 
 #                -d <dataset> (update single dataset)
-#                -a (apply to all HPAP datasets)
+#                --all (apply to all HPAP datasets)
 #                -f <file> (use file containing datasets to update)
 #                -l (list all datasets)
 #                -h (help)
@@ -32,16 +32,15 @@ import getopt
 import os
 ###############################################################################
 def syntax():
-    SYNTAX =  "bfdelete -p <dataset path> "
-    SYNTAX += "[-d | -a | -f] (removes rightmost collection in path)\n"
+    SYNTAX =  "\nbfdelete -p <dataset path> "
+    SYNTAX += "(removes rightmost collection in path)\n"
     SYNTAX += "         -d <dataset>\n"
-    SYNTAX += "         -a (apply to ALL HPAP datasets)\n"
+    SYNTAX += "         --all (apply to ALL HPAP datasets)\n"
     SYNTAX += "         -f <file containing datasets>\n"
-    SYNTAX += "         --force (remove collection with content)\n"
-    SYNTAX += "\n"
-    SYNTAX += "bfdelete -h (help)\n"
-    SYNTAX += "bfdelete -l (list datasets)\n"
-    SYNTAX += "\nNote: -d, -a and -f are mutually exclusive\n"
+    SYNTAX += "         --force (remove collection with content)\n\n"
+    SYNTAX += "         -h (help)\n"
+    SYNTAX += "         -l (list datasets)\n\n"
+    SYNTAX += "Note: -d, -a and -f are mutually exclusive\n"
     return SYNTAX
 ###############################################################################
 def printf(format, *args):
@@ -143,9 +142,8 @@ argv = sys.argv[1:]
 # resolve options
 #################
 try:
-    opts, args = getopt.getopt(argv, "Fhalp:d:f:",
-          ['force', 'collection=', 'file=', 'help', \
-           'list', 'path=', 'dataset=', 'all'])
+    opts, args = getopt.getopt(argv, "hlp:d:f:",
+          ['force', 'all'])
 except getopt.GetoptError:
     printf("%s\n",syntax())
     sys.exit()
@@ -156,35 +154,35 @@ for ds in dsets:
     bfdsets.append(dsdict[ds[0]])
 
 for opt, arg in opts:
-    if opt in ('-h', '--help'):
+    if opt in ('-h'):
         printf("%s\n",syntax())
         sys.exit()
-    elif opt in ('-a', '--all'):
+    elif opt in ('--all'):
         hpap_dsets = list()
         ALL = True
         for ds in dsets:
             if 'HPAP-' in ds[0]: hpap_dsets.append(ds[2])
         hpap_dsets.sort(key = lambda x: x.name)
-    elif opt in ('-p', '--path'):
+    elif opt in ('-p'):
         delete_from = arg
         # remove leading / if it exists
         if delete_from[0] == '/': delete_from = delete_from[1:]
         pathlist = delete_from.split('/')
         collection = pathlist[-1]
         delete_from = '/'.join(pathlist[:-1])
-    elif opt in ('-l', '--list'):
+    elif opt in ('-l'):
         for ds in dsets: 
             printf("%s\n", ds[0])
         sys.exit()
-    elif opt in ('-d', '--dataset'):
+    elif opt in ('-d'):
         dset = dsdict[arg]
         DATASET = True
         if not db_exists(dset,bfdsets):
             printf("dataset, %s, does not exist on server.\n", dset)
             sys.exit()
-    elif opt in ('-F', '--force'):
+    elif opt in ('--force'):
         FORCE = True
-    elif opt in ('-f', '--file'):
+    elif opt in ('-f'):
         filename = arg
         FILE = True
         if not file_exists(filename):
