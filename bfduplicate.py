@@ -7,15 +7,16 @@
 # 
 #   DESCRIPTION:  
 # 
-#       OPTIONS:  -d -n -l -h
+#       OPTIONS:  see options in syntax() function below
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
 #       UPDATES:  170911: Added CLI opt/arg processing
 #                 171108: Added short names for -d option
+#                 180215: unified options
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
 #       VERSION:  0.2.0
 #       CREATED:  09/06/2017 16:54:33 EDT
-#      REVISION:  Wed Nov  8 15:16:11 EST 2017
+#      REVISION:  Thu Feb 15 14:31:03 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -27,6 +28,13 @@ def printf(format, *args):
     """ works just like the C/C++ printf function """
     sys.stdout.write(format % args)
     sys.stdout.flush()
+###############################################################################
+def syntax():
+    SYNTAX =   "\nbfduplicate.py -d <dataset>\n"
+    SYNTAX +=  "               -n <new dataset>\n\n"
+    SYNTAX +=  "               -h (help)\n"
+    SYNTAX +=  "               -l (list datasets)\n"
+    return SYNTAX
 ###############################################################################
 def get_datasets():
     """ return list of tuples with short and long dataset names 
@@ -67,12 +75,6 @@ def create_duplicate(element, newdset, indent=0):
             newdset.add(c)
             create_duplicate(item, c, indent=indent+4)
 ###############################################################################
-def syntax():
-    SYNTAX =   "bfduplicate.py -d <dataset> -n <new dataset>\n"
-    SYNTAX +=  "               -h (help)\n"
-    SYNTAX +=  "               -l (list datasets)"
-    return SYNTAX
-###############################################################################
 # program starts HERE
 bf = Blackfynn()  # use 'default' profile
 
@@ -82,7 +84,7 @@ if len(sys.argv) < 2:
 
 argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv,"hld:n:",['list','dataset=','newdataset='])
+    opts, args = getopt.getopt(argv,"hld:n:")
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -94,15 +96,15 @@ for opt, arg in opts:
         printf("%s\n", syntax())
         sys.exit()
 
-    elif opt in ('-l', '--list'):
+    elif opt in '-l':
         for ds in dsets:
             printf("%s\n", ds[0])
         sys.exit()
 
-    elif opt in ('-d', '--dataset'):
+    elif opt in '-d':
         dset = bf.get_dataset(dsdict[arg])
 
-    elif opt in ('-n', '--newdataset'):
+    elif opt in '-n':
         if db_exists(arg, dsets):
             printf("Dataset %s already exists.  Can not continue.\n", arg)
             EXISTS = True
