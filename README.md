@@ -20,3 +20,5 @@ bfrename will rename a collection in a dataset
 bfsync will clone a dataset to a local directory (including data if requested)
 ### bftree.py
 bftree shows the content of a dataset in tree format
+## Note:
+Each command comes with a -h option for help and a -l option to list all datasets available to the user
