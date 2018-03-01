@@ -5,7 +5,7 @@ bfcompare shows the differences between two datasets or a dataset and a local di
 ### bfdelete.py
 bfdelete removes directories (collections) from a dataset 
 ### bfdu.sh
-bfdu will give an accurate size of data in a directory
+bfdu will give an accurate size of data in a local directory
 ### bfduplicate.py
 bfduplicate clones a dataset to a new dataset (collections only)
 ### bfinsert.py
