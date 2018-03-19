@@ -2,7 +2,8 @@
 Blackfynn Utilities for dealing with the Datasets from the Linux command line
 ### bfcompare.py
 bfcompare shows the differences between two datasets or a dataset and a local directory that was created with bfsync.
-    bfcompare -d <dataset>
+```
+bfcompare -d <dataset>
           -c <compared dataset>
           --all (compare with all datasets)
           -p <local path to compare>
@@ -13,6 +14,7 @@ bfcompare shows the differences between two datasets or a dataset and a local di
           -l (list datasets)
 
 Note: -c, -p and --all are mutually exclusive.
+```
 ### bfdelete.py
 bfdelete removes directories (collections) from a dataset 
 ### bfdu.sh
