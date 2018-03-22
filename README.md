@@ -136,6 +136,20 @@ bftree -d <dataset>
 
 Note: -d and --all are mutually exclusive
 ```
+## Prerequisites
+```
+Python 2.7.10+ and packages
+    blackfynn
+    datetime
+    getopt
+    os
+    sys
+    termcolor
+    time
+    shutil
+    urllib3
+    requests
+```
 ## Note:
 *Each command comes with a -h option for help and a -l option to list all 
 datasets available to the user*
