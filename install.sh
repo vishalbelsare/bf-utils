@@ -39,7 +39,7 @@ then
 else
     INSTDIR=$1
 fi
-PATH2APPEND="PATH=${INSTDIR}:\$PATH"
+PATH2APPEND="export PATH=${INSTDIR}:\$PATH"
 #
 # check INSTDIR in $PATH
 #
