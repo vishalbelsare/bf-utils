@@ -100,6 +100,7 @@ bfrename -d <dataset>
          -f <file containing datasets>
          -p <dataset path> (renames rightmost object in path)
          -n <new object name>
+         --data (rightmost object is data)
 
          -h (help)
          -l (list datasets)
