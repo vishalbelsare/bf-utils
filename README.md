@@ -143,12 +143,12 @@ Python 2.7.10+ and packages
     datetime
     getopt
     os
+    requests
+    shutil
     sys
     termcolor
     time
-    shutil
     urllib3
-    requests
 ```
 ## Note:
 *Each command comes with a -h option for help and a -l option to list all 
