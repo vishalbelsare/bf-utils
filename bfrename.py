@@ -10,7 +10,8 @@
 #      OPTIONS:  -p <dataset path to object to rename>
 #                -n <new object name>
 #                -d <dataset> (update single dataset)
-#                -a (apply to all HPAP datasets)
+#                --all (apply to all HPAP datasets)
+#                --data (allow renaming of package)
 #                -f <file> (use file containing datasets to update)
 #                -l (list all datasets)
 #                -h (help)
@@ -18,11 +19,12 @@
 #      UPDATES:  171006: collection path can start with / or not
 #                171113: renames collections only
 #                180215: unified options
+#                180322: added --data so packages can be renamed
 #       AUTHOR:  Pete Schmitt (discovery), <pschmitt@upenn.edu>
 #      COMPANY:  University of Pennsylvania
-#      VERSION:  0.1.1
+#      VERSION:  0.2.0
 #      CREATED:  Fri Oct  6 13:36:33 EDT 2017
-#     REVISION:  Thu Feb 15 14:05:46 EST 2018
+#     REVISION:  Thu Mar 22 15:10:46 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -37,6 +39,7 @@ def syntax():
     SYNTAX += "         -f <file containing datasets>\n"
     SYNTAX += "         -p <dataset path> "
     SYNTAX += "(renames rightmost object in path)\n"
+    SYNTAX += "         --data (rightmost object is data)\n"
     SYNTAX += "         -n <new object name>\n\n"
     SYNTAX += "         -h (help)\n"
     SYNTAX += "         -l (list datasets)\n\n"
@@ -83,7 +86,7 @@ def get_datasets():
     dsets.sort()
     return dsets, dsdict
 ###############################################################################
-def rename_object(dset, path, newname):
+def rename_object(dset, path, newname, DATA):
     if newname == "": 
         printf("need new name for object at the end of path!")
         sys.exit()
@@ -107,11 +110,18 @@ def rename_object(dset, path, newname):
     # ensure object exists, is not a package, and rename it.
     
     if ":package:" in str(ds.id):
-        printf("Unable to rename packages!")
-        return
-    ds.name = newname
-    ds.update()
-    printf("Object, %s, renamed to %s within dataset %s.\n", obj, newname, dset)
+        if not DATA:
+            printf("Trying to rename a data package, use --data\n")
+        else:
+            printf("Package, %s, renamed to %s within dataset %s.\n", 
+                    obj, newname, dset)
+            ds.name = newname
+            ds.update()
+    else:
+        ds.name = newname
+        ds.update()
+        printf("Collection, %s, renamed to %s within dataset %s.\n", 
+                obj, newname, dset)
     return
 ###############################################################################
 # program starts HERE
@@ -119,6 +129,7 @@ bf = Blackfynn()  # use 'default' profile
 ALL = False
 FILE = False
 DATASET = False
+DATA = False
 
 if len(sys.argv) < 2:
     printf("%s\n", syntax())
@@ -129,7 +140,7 @@ argv = sys.argv[1:]
 # resolve options
 #################
 try:
-    opts, args = getopt.getopt(argv, "hln:p:d:f:", ['all'])
+    opts, args = getopt.getopt(argv, "hln:p:d:f:", ['all','data'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -167,6 +178,8 @@ for opt, arg in opts:
         if not file_exists(filename):
             printf("file, %s, does NOT exist.\n", filename)
             sys.exit()
+    elif opt in '--data':
+        DATA = True
 ####################
 # here we go
 if FILE:
@@ -177,12 +190,12 @@ if FILE:
             printf("dataset, %s, does not exist on server.\n", dset)
             sys.exit()
     for dset in fdsets:
-        rename_object(dset, path, newname)
+        rename_object(dset, path, newname, DATA)
 
 elif ALL:
     for dset in hpap_dsets:
-        rename_object(dset.name, path, newname)
+        rename_object(dset.name, path, newname, DATA)
 
 elif DATASET:
-    rename_object(dset, path, newname)
+    rename_object(dset, path, newname, DATA)
 
