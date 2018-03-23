@@ -73,6 +73,20 @@ else
     fi
 fi
 #
+# Check with the user if they want to proceed.
+#
+echo -n "Are you ready to install the software? [Y/n] "
+read yn
+if test "$yn" = "" -o "$yn" = 'Y'
+then
+    echo "Installing Software!!"
+    echo
+else
+    echo "Exiting..."
+    echo
+    exit 0
+fi
+#
 # Add INSTDIR path to end of $HOME/.bashrc if necessary
 #
 if test $pathyn = "Y"
