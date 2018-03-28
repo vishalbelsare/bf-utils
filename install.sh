@@ -111,6 +111,12 @@ do
     F=`echo $i | cut -f1 -d.`
     if test -f ${INSTDIR}/$F
     then
+        if 
+            cmp $i ${INSTDIR}/$F > /dev/null
+        then
+            echo "$i already installed to ${INSTDIR}/$F"
+            continue
+        fi
         echo -n "Overwrite existing $F [Y/n] "
         read yn
         if test "$yn" = "Y" -o "$yn" = ""
