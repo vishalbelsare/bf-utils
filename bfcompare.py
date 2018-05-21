@@ -28,7 +28,7 @@
 #       COMPANY:  University of Pennsylvania
 #       VERSION:  2.0.3
 #       CREATED:  09/12/2017 18:00:00 EDT
-#      REVISION:  Mon May 21 11:36:09 EDT 2018
+#      REVISION:  Mon May 21 15:16:39 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -92,7 +92,7 @@ def get_collections(element, collections, FILE, indent=0):
             try:
                 realnam = str(package.sources[0].s3_key.split('/')[-1])
             except:
-                printf("ERROR: unable to get real name of package: ")
+                printf("\nERROR: unable to get real name of package: ")
                 printf("%s/%s, so it will be ignored.\n", element.name, pkgname)
                 continue
             realext = realnam.split('.')[-1]
