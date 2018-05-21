@@ -7,7 +7,8 @@
 # 
 #   DESCRIPTION:  Compare Collections between datasets  
 # 
-#       OPTIONS:  ---
+#       OPTIONS:  see syntax() below
+#
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
 #       UPDATES:  170911: Added CLI opt/arg processing
 #                 170915: Created create_paths()
@@ -22,11 +23,12 @@
 #                 171103: Added support for short HPAP dataset names
 #                 171121: created exceptions for unknown extensions
 #                 180214: unified options
+#                 180521: added test for package avail in get_collections()
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  2.0.2
+#       VERSION:  2.0.3
 #       CREATED:  09/12/2017 18:00:00 EDT
-#      REVISION:  Wed Feb 14 19:06:15 EST 2018
+#      REVISION:  Mon May 21 11:36:09 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -87,7 +89,12 @@ def get_collections(element, collections, FILE, indent=0):
         elif FILE:
             package = bf.get(item) 
             pkgname = package.name
-            realnam = str(package.sources[0].s3_key.split('/')[-1])
+            try:
+                realnam = str(package.sources[0].s3_key.split('/')[-1])
+            except:
+                printf("ERROR: unable to get real name of package: ")
+                printf("%s/%s, so it will be ignored.\n", element.name, pkgname)
+                continue
             realext = realnam.split('.')[-1]
             if realext in extensions:
                 filename = pkgname

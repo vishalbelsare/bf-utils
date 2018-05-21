@@ -7,15 +7,8 @@
 # 
 #   DESCRIPTION:  create file structure on server based on dataset structure  
 # 
-#       OPTIONS:  -h 
-#                 -l (list datasets)
-#                 -d <dataset>
-#                 -p <path to local directory> (Dataset name used at top) 
-#                 -e <exception paths file>
-#                 --nodata
-#                 --mirror
-#                 --refresh
-#                 --norefresh
+#       OPTIONS:  see syntax() below
+#
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
 #       UPDATES:  171018: added --nodata
 #                 171102: added ability to use short names for HPAP datasets
@@ -30,11 +23,12 @@
 #                 171121: created exceptions for unknown extensions
 #                 171206: no longer create local directories in exception list
 #                 180215: unified options
+#                 180518: added test for package avail in get_collections()
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.5.3
+#       VERSION:  0.5.4
 #       CREATED:  Mon Oct  9 19:56:00 EDT 2017
-#      REVISION:  Thu Feb 15 14:13:59 EST 2018
+#      REVISION:  Fri May 18 15:00:53 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -99,8 +93,13 @@ def get_collections(element, collections, indent=0):
             get_collections(item, collections, indent=indent+1)
         else:
             package = bf.get(item) 
-            pkgname = package.name
-            realnam = str(package.sources[0].s3_key.split('/')[-1])
+            pkgname = package.name 
+            try:
+                realnam = str(package.sources[0].s3_key.split('/')[-1])
+            except:
+                printf("ERROR: unable to get real name of package: ")
+                printf("%s/%s, so it will be ignored.\n", element.name, pkgname)
+                continue
             realext = realnam.split('.')[-1]
             if realext in extensions:
                 filename = pkgname

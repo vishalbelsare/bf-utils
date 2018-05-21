@@ -7,12 +7,8 @@
 # 
 #   DESCRIPTION:  
 # 
-#       OPTIONS:  --data  (show files in output)
-#                 --realdata (show original uploaded filenames)
-#                 -d <dataset>  (show contents of dataset)
-#                 --nocolor (output without color)
-#                 -l  (list all available datasets)
-#                 -h  (show help)
+#       OPTIONS:  see syntax() below
+#
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
 #       UPDATES:  170911: Added CLI opt/arg processing
 #                 170922: Added -f option to show files
@@ -28,11 +24,12 @@
 #                         --data now shows BF filename and uploaded extension
 #                 171121: created exceptions for unknown extensions
 #                 180215: unified options
+#                 180521: added test for package avail in print_tree()
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.5.2
+#       VERSION:  0.5.3
 #       CREATED:  09/06/2017 16:54:33 EDT
-#      REVISION:  Thu Feb 15 14:21:45 EST 2018
+#      REVISION:  Mon May 21 11:26:44 EDT 2018
 #===============================================================================
 
 from blackfynn import Blackfynn
@@ -113,7 +110,13 @@ def print_tree(element, FILE, COLOR, REAL, indent=0):
             print_tree(item, FILE, COLOR, REAL, indent=indent+4)
         elif FILE:
             package = bf.get(item)
-            realnam = str(package.sources[0].s3_key.split('/')[-1])
+            pkgname = package.name
+            try:
+                realnam = str(package.sources[0].s3_key.split('/')[-1])
+            except:
+                printf("\nERROR: unable to get real name of package: ")
+                printf("%s/%s, continuing...\n\n", element.name, pkgname)
+                continue
             realext = realnam.split('.')[-1]
             if REAL:
                 pkgname = package.sources[0].name
