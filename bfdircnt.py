@@ -69,4 +69,7 @@ for d in otree:
     slashes = len(dlist) - 1
     if slashes > 0:
         printf("%s", "    " * slashes)
-    printf("%s (dirs: %d files: %d)\n", os.path.basename(d), dirs, files)
+    if ((dirs + files) == 0):
+        printf("%s (empty)\n", os.path.basename(d))
+    else:
+        printf("%s (dirs: %d files: %d)\n", os.path.basename(d), dirs, files)
