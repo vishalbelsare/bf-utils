@@ -16,6 +16,12 @@ bfcompare -d <dataset>
 Note: -c, -p and --all are mutually exclusive.
 ```
 ### bfdelete.py
+bfdircnt will provide directory/file counts of directories in a tree.  Each
+count is the total of directores, subdirectories and files in a directory.
+```
+bfdircnt <directory>
+```
+### bfdelete.py
 bfdelete removes directories (collections) from a dataset 
 ```
 bfdelete -d <dataset>
