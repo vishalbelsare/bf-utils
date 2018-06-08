@@ -47,7 +47,6 @@ if path[-1] == '/':
 
 if os.path.exists(path) and os.path.isdir(path):
     BASE = os.path.basename(path)
-    DIR  = os.path.dirname(path)
     os.chdir(path + '/..')
 else:
     printf("Error: argument must be existing directory\n")
