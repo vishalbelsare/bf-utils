@@ -61,7 +61,6 @@ for a in otree:
             otree[a][0] += atree[b][0]
             otree[a][1] += atree[b][1]
 
-tab = '\t'
 for d in otree:
     dirs = otree[d][0]
     files = otree[d][1]
