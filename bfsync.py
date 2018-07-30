@@ -24,11 +24,12 @@
 #                 171206: no longer create local directories in exception list
 #                 180215: unified options
 #                 180518: added test for package avail in get_collections()
+#                 180730: updated URL to contact for refresh
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.5.4
+#       VERSION:  0.5.5
 #       CREATED:  Mon Oct  9 19:56:00 EDT 2017
-#      REVISION:  Fri May 18 15:00:53 EDT 2018
+#      REVISION:  Mon Jul 30 10:55:47 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -213,12 +214,9 @@ def excepted(package, exlist):
 # program starts HERE
 bf = Blackfynn()  # use 'default' profile
 outdir = './'
-NODATA = False
-MIRROR = False
-EXCEPT = False
-DATASET = False
+NODATA = MIRROR = EXCEPT = DATASET = False
 REFRESH = True # default value
-HPAPURL = 'https://hpap.pmacs.upenn.edu/api/v1/hpapdata'
+HPAPURL = 'https://hpap.pmacs.upenn.edu/services/refreshDirectories'
 
 if len(sys.argv) < 2:
     printf("%s\n", syntax())
