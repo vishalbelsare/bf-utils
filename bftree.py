@@ -25,11 +25,12 @@
 #                 171121: created exceptions for unknown extensions
 #                 180215: unified options
 #                 180521: added test for package avail in print_tree()
+#                 180810: added an additional check for extension
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.5.3
+#       VERSION:  0.6.0
 #       CREATED:  09/06/2017 16:54:33 EDT
-#      REVISION:  Mon May 21 11:26:44 EDT 2018
+#      REVISION:  Fri Aug 10 14:04:13 EDT 2018
 #===============================================================================
 
 from blackfynn import Blackfynn
@@ -40,7 +41,7 @@ import sys
 import getopt
 bf = Blackfynn()  # use 'default' profile
 # extensions unknown to Blackfynn
-extensions = ['tif', 'fcs','bw', 'pptx', 'metadata']
+extensions = ['tif', 'gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =   "\nbftree -d <dataset> \n"
@@ -117,16 +118,19 @@ def print_tree(element, FILE, COLOR, REAL, indent=0):
                 printf("\nERROR: unable to get real name of package: ")
                 printf("%s/%s, continuing...\n\n", element.name, pkgname)
                 continue
-            realext = realnam.split('.')[-1]
+            if '.' in realnam:
+                realext = realnam.split('.')[-1]
+            else:
+                realext = ""
             if REAL:
                 pkgname = package.sources[0].name
-                if realext in extensions:
+                if realext in extensions or realext == "":
                     filename = pkgname
                 else:
                     filename = pkgname + '.' + realext
             else:
                 pkgname = package.name
-                if realext in extensions:
+                if realext in extensions or realext == "":
                     filename = pkgname
                 else:
                     filename = pkgname + '.' + realext

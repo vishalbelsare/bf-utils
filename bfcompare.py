@@ -24,11 +24,12 @@
 #                 171121: created exceptions for unknown extensions
 #                 180214: unified options
 #                 180521: added test for package avail in get_collections()
+#                 180810: added an additional check for extension
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  2.0.3
+#       VERSION:  2.1.0
 #       CREATED:  09/12/2017 18:00:00 EDT
-#      REVISION:  Mon May 21 15:16:39 EDT 2018
+#      REVISION:  Fri Aug 10 14:04:13 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -37,7 +38,7 @@ import os
 import sys
 import getopt
 # extensions unknown to Blackfynn
-extensions = ['tif', 'fcs', 'bw', 'pptx', 'metadata']
+extensions = ['tif', 'gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfcompare -d <dataset>\n"
@@ -95,8 +96,13 @@ def get_collections(element, collections, FILE, indent=0):
                 printf("\nERROR: unable to get real name of package: ")
                 printf("%s/%s, so it will be ignored.\n", element.name, pkgname)
                 continue
-            realext = realnam.split('.')[-1]
-            if realext in extensions:
+
+            if '.' in realnam:
+                realext = realnam.split('.')[-1]
+            else:
+                realext = ""
+
+            if realext in extensions or realext == "":
                 filename = pkgname
             else:
                 filename = pkgname + '.' + realext

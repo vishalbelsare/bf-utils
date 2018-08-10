@@ -25,11 +25,13 @@
 #                 180215: unified options
 #                 180518: added test for package avail in get_collections()
 #                 180730: updated URL to contact for refresh
+#                 180810: added an additional check for extension
+#                         and rename downloaded pkg if needed.
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.5.5
+#       VERSION:  0.6.1
 #       CREATED:  Mon Oct  9 19:56:00 EDT 2017
-#      REVISION:  Mon Jul 30 10:55:47 EDT 2018
+#      REVISION:  Fri Aug 10 14:53:44 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -40,7 +42,7 @@ import getopt
 import os
 import time
 # extensions unknown to Blackfynn
-extensions = ['tif', 'fcs','bw', 'pptx', 'metadata']
+extensions = ['tif', 'gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
@@ -101,11 +103,17 @@ def get_collections(element, collections, indent=0):
                 printf("ERROR: unable to get real name of package: ")
                 printf("%s/%s, so it will be ignored.\n", element.name, pkgname)
                 continue
-            realext = realnam.split('.')[-1]
-            if realext in extensions:
+
+            if '.' in realnam:
+                realext = realnam.split('.')[-1]
+            else:
+                realext = ""
+
+            if realext in extensions or realext == "":
                 filename = pkgname
             else:
                 filename = pkgname + '.' + realext
+
             b = str(indent) + ':' + filename + ':' + item.id
             collections.append(b)
 
@@ -174,14 +182,23 @@ def get_packages(pkgpaths):
         package = bf.get(pkg) 
         pkgname = package.name
         realnam = str(package.sources[0].s3_key.split('/')[-1])
-        realext = realnam.split('.')[-1]
-        if realext in extensions:
+        
+        if '.' in realnam:
+            realext = realnam.split('.')[-1]
+        else:
+            realext = ""
+
+        if realext in extensions or realext == "":
             filename = pkgname
         else:
             filename = pkgname + '.' + realext
 
         printf("downloading %s to %s\n", filename, unixdir)
-        package.sources[0].download(filename)
+        dlname = package.sources[0].download(filename)
+        # if no extension download methon will append  _filename as an
+        # extension, so we have to rename if needed
+        if str(dlname) != filename:
+            os.rename(str(dlname), filename)
 
         os.chdir(rootdir) 
 ###############################################################################
