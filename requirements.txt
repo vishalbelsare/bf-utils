@@ -1,2 +1,3 @@
 blackfynn>=2.4.3
+numpy<=1.14.5
 termcolor>=1.1.0
