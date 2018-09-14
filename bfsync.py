@@ -214,10 +214,10 @@ def mirror(dspaths, locpaths, rootdir):
             printf("%s\n", abspath)
 
             if os.path.isdir(abspath):
-                print os.getcwd, abspath
+                print os.getcwd(), abspath
                 rmtree(abspath)
             elif os.path.isfile(abspath):
-                print os.getcwd, abspath
+                print os.getcwd(), abspath
                 os.unlink(abspath)
 
 ###############################################################################
