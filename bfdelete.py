@@ -18,11 +18,12 @@
 # REQUIREMENTS:  blackfynn python library and license key
 #      UPDATES:  171006: collection path can start with / or not
 #                171103: Added short name usage for HPAP datasets
+#                181003: Deleting data now supported
 #       AUTHOR:  Pete Schmitt (discovery), <pschmitt@upenn.edu>
 #      COMPANY:  University of Pennsylvania
-#      VERSION:  0.2.0
+#      VERSION:  0.3.0
 #      CREATED:  Fri Oct  6 13:36:33 EDT 2017
-#     REVISION:  Fri Nov  3 13:52:37 EDT 2017
+#     REVISION:  Wed Oct  3 11:24:04 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -89,11 +90,19 @@ def delete_collection(dset, collection, delete_from, FORCE):
     FOUND = False
     if len(ds.items) > 0:
         for item in ds.items:
-            if collection in item.name:
+            if item.name in collection:
+                #if collection in item.name:
                 FOUND = True
                 break
+    #print collection, item.name
+    #sys.exit()
     if FOUND:
-        if len(item.items) == 0:  
+        if item.type != "Collection":
+            #print item.name, item.type
+            item.delete()
+            printf("File, %s, removed in \"%s\" within dataset %s\n",
+                    collection, path, dset)
+        elif len(item.items) == 0:  
             item.delete()
             printf("Collection, %s, removed in \"%s\" within dataset %s\n",
                     collection, path, dset)
@@ -103,6 +112,7 @@ def delete_collection(dset, collection, delete_from, FORCE):
                     collection)
         else:
             printf("Collection, %s, not empty.\n", collection)
+
     else:
         printf("Path, %s/%s, not found within dataset %s\n", path, 
                 collection, dset)
