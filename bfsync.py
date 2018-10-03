@@ -27,11 +27,12 @@
 #                 180730: updated URL to contact for refresh
 #                 180810: added an additional check for extension
 #                         and rename downloaded pkg if needed.
+#                 181003: -e removes local excepted files if existing
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.6.1
+#       VERSION:  0.7.0
 #       CREATED:  Mon Oct  9 19:56:00 EDT 2017
-#      REVISION:  Fri Aug 10 14:53:44 EDT 2018
+#      REVISION:  Wed Oct  3 12:12:33 EDT 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -42,7 +43,7 @@ import getopt
 import os
 import time
 # extensions unknown to Blackfynn
-extensions = ['tif', 'gz', 'bw', 'metadata']
+extensions = ['pptx', 'tif', 'gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
@@ -315,6 +316,12 @@ if DATASET:
 
         printf("\n%s Download time: %.2f seconds\n", 
                 dsname, time.time() - start)
+
+    if EXCEPT:
+        import subprocess
+        for f in exlist:
+            d = outdir + '/' + dsname + '/' + f
+            subprocess.call(['rm', '-rvf', d])
 
 if MIRROR and DATASET:
     printf("\nMirroring Dataset and Local...\n\n")
