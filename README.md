@@ -21,7 +21,7 @@ bfdelete removes directories (collections) from a dataset
 bfdelete -d <dataset>
          --all (apply to ALL HPAP datasets)
          -f <file containing datasets>
-         -p <dataset path> (removes rightmost collection in path)
+         -p <dataset path> (removes rightmost item in path)
          --force (remove collection with content)
 
          -h (help)
