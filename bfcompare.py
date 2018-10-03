@@ -38,7 +38,7 @@ import os
 import sys
 import getopt
 # extensions unknown to Blackfynn
-extensions = ['tif', 'gz', 'bw', 'metadata']
+extensions = ['pptx', 'tif', 'gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfcompare -d <dataset>\n"
