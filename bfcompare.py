@@ -25,11 +25,12 @@
 #                 180214: unified options
 #                 180521: added test for package avail in get_collections()
 #                 180810: added an additional check for extension
+#                 181106: removed pptx and tif from extensions list
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  2.1.0
+#       VERSION:  2.1.1
 #       CREATED:  09/12/2017 18:00:00 EDT
-#      REVISION:  Fri Aug 10 14:04:13 EDT 2018
+#      REVISION:  Tue Nov  6 15:07:23 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -38,7 +39,7 @@ import os
 import sys
 import getopt
 # extensions unknown to Blackfynn
-extensions = ['pptx', 'tif', 'gz', 'bw', 'metadata']
+extensions = ['gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfcompare -d <dataset>\n"

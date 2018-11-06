@@ -26,11 +26,12 @@
 #                 180215: unified options
 #                 180521: added test for package avail in print_tree()
 #                 180810: added an additional check for extension
+#                 181106: removed pptx and tif from extensions list
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.6.0
+#       VERSION:  0.6.1
 #       CREATED:  09/06/2017 16:54:33 EDT
-#      REVISION:  Fri Aug 10 14:04:13 EDT 2018
+#      REVISION:  Tue Nov  6 15:07:23 EST 2018
 #===============================================================================
 
 from blackfynn import Blackfynn
@@ -41,7 +42,7 @@ import sys
 import getopt
 bf = Blackfynn()  # use 'default' profile
 # extensions unknown to Blackfynn
-extensions = ['pptx', 'tif', 'gz', 'bw', 'metadata']
+extensions = ['gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =   "\nbftree -d <dataset> \n"

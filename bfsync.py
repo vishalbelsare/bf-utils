@@ -28,11 +28,12 @@
 #                 180810: added an additional check for extension
 #                         and rename downloaded pkg if needed.
 #                 181003: -e removes local excepted files if existing
+#                 181106: removed pptx and tif from extensions list
 #        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.7.0
+#       VERSION:  0.7.1
 #       CREATED:  Mon Oct  9 19:56:00 EDT 2017
-#      REVISION:  Wed Oct  3 12:12:33 EDT 2018
+#      REVISION:  Tue Nov  6 15:07:23 EST 2018
 #===============================================================================
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
@@ -43,7 +44,7 @@ import getopt
 import os
 import time
 # extensions unknown to Blackfynn
-extensions = ['pptx', 'tif', 'gz', 'bw', 'metadata']
+extensions = ['gz', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
