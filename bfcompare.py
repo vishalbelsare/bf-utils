@@ -39,7 +39,7 @@ import os
 import sys
 import getopt
 # extensions unknown to Blackfynn
-extensions = ['ome.tiff', 'fastq.gz', 'bigwig', 'bw', 'metadata']
+extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfcompare -d <dataset>\n"

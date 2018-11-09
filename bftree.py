@@ -42,7 +42,7 @@ import sys
 import getopt
 bf = Blackfynn()  # use 'default' profile
 # extensions unknown to Blackfynn
-extensions = ['ome.tiff', 'fastq.gz', 'bigwig', 'bw', 'metadata']
+extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =   "\nbftree -d <dataset> \n"
