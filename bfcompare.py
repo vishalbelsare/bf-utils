@@ -2,11 +2,11 @@
 #===============================================================================
 #
 #          FILE:  bfcompare.py
-# 
-#         USAGE:  ./bfcompare.py 
-# 
-#   DESCRIPTION:  Compare Collections between datasets  
-# 
+#
+#         USAGE:  ./bfcompare.py
+#
+#   DESCRIPTION:  Compare Collections between datasets
+#
 #       OPTIONS:  see syntax() below
 #
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
@@ -39,7 +39,7 @@ import os
 import sys
 import getopt
 # extensions unknown to Blackfynn
-extensions = ['gz', 'bw', 'metadata']
+extensions = ['ome.tiff', 'fatsq.gz', 'bigwig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfcompare -d <dataset>\n"
@@ -59,7 +59,7 @@ def printf(format, *args):
     sys.stdout.flush()
 ###############################################################################
 def get_datasets():
-    """ return list of tuples with short and long dataset names 
+    """ return list of tuples with short and long dataset names
         and dictionary of datasets with short name as key """
     dsets = list()
     dsdict = dict()
@@ -72,14 +72,14 @@ def get_datasets():
         else:
             dsdict[str(d.name)] = str(d.name)
             dsets.append((str(d.name), str(d.name)))
-            
+
     dsets.sort()
     return dsets, dsdict
 ###############################################################################
 def get_collections(element, collections, FILE, indent=0):
     """ output the contents of a dataset as a tree """
     element._check_exists()
-    
+
     if indent > 0:
         a = str(indent-1) + ':' + element.name
         collections.append(a)
@@ -89,7 +89,7 @@ def get_collections(element, collections, FILE, indent=0):
         if isinstance(item, BaseCollection):
             get_collections(item, collections, FILE, indent=indent+1)
         elif FILE:
-            package = bf.get(item) 
+            package = bf.get(item)
             pkgname = package.name
             try:
                 realnam = str(package.sources[0].s3_key.split('/')[-1])
@@ -98,15 +98,20 @@ def get_collections(element, collections, FILE, indent=0):
                 printf("%s/%s, so it will be ignored.\n", element.name, pkgname)
                 continue
 
-            if '.' in realnam:
-                realext = realnam.split('.')[-1]
-            else:
-                realext = ""
+            realext = False
+            for ext in extensions:
+                if realnam.lower().endswith(ext.lower()):
+                    realext = ext
+                    break
 
-            if realext in extensions or realext == "":
+            if realext == False:
+                realext = realnam.rsplit(".",1)[-1]
+
+            if pkgname[-len(realext):]==realext:
                 filename = pkgname
             else:
-                filename = pkgname + '.' + realext
+                filename = pkgname.replace(realext,"")+"."+realext
+                
             collections.append(str(indent) + ':' + filename)
 
     return collections
@@ -118,7 +123,7 @@ def create_paths(thelist):
         colon = i.find(':')
         indent = int(i[:colon])
         collection = i[colon+1:]
-        
+
         if indent == 0:
             path = [0] * 100
             path[0] = collection
@@ -126,19 +131,19 @@ def create_paths(thelist):
         else:
             path[indent] = collection
             PATH = path[0]
-            
+
             for i in range(1,indent+1):
                 if path[i] != 0:
                     PATH += "/" + path[i]
-                    
-            paths.append(PATH)        
-    
+
+            paths.append(PATH)
+
     return paths
 ###############################################################################
 def find(collection, paths, CASE):
     """ search paths for collection """
     for c in paths:
-        if CASE == True and c == collection: 
+        if CASE == True and c == collection:
             return True
         elif c.upper()  == collection.upper():
             return True
@@ -157,14 +162,14 @@ def compare(dset, dspaths, cdset, CASE, FILE):
         if not find(d, cdspaths, CASE):
             printf("%s\n", d)
 
-    printf("\n")        
+    printf("\n")
 
     printf("Data found in %s that are NOT in %s:\n", cdset.name, dset.name)
     for c in cdspaths:
         if not find(c, dspaths, CASE):
             printf("%s\n", c)
 ###############################################################################
-def localpaths(rootpath, FILE):    
+def localpaths(rootpath, FILE):
     os.chdir(rootpath)
     paths = list()
     for r, d, f in os.walk('.'):
@@ -183,7 +188,7 @@ def compare2local(dset, locpaths, dspaths, CASE):
         if not find(d, locpaths, CASE):
             printf("%s\n",d)
 
-    printf("\n")        
+    printf("\n")
 
     printf("Data found in %s that are NOT in %s:\n", 'LOCAL', dset.name)
     for c in locpaths:
@@ -254,9 +259,9 @@ dspaths.sort()
 if ALL == True:
     for ds in dsets:
         if dset.name != ds.name:
-            compare(dset, dspaths, ds, CASE, FILE) 
+            compare(dset, dspaths, ds, CASE, FILE)
 elif PATH != None:
     paths = localpaths(PATH, FILE)
-    compare2local(dset, paths, dspaths, CASE) 
+    compare2local(dset, paths, dspaths, CASE)
 else:
     compare(dset, dspaths, cdset, CASE, FILE)

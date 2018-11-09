@@ -2,11 +2,11 @@
 #===============================================================================
 #
 #          FILE:  bftree.py
-# 
-#         USAGE:  ./bftree.py 
-# 
-#   DESCRIPTION:  
-# 
+#
+#         USAGE:  ./bftree.py
+#
+#   DESCRIPTION:
+#
 #       OPTIONS:  see syntax() below
 #
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
@@ -42,7 +42,7 @@ import sys
 import getopt
 bf = Blackfynn()  # use 'default' profile
 # extensions unknown to Blackfynn
-extensions = ['gz', 'bw', 'metadata']
+extensions = ['ome.tiff', 'fatsq.gz', 'bigwig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =   "\nbftree -d <dataset> \n"
@@ -62,7 +62,7 @@ def printf(format, *args):
     sys.stdout.flush()
 ###############################################################################
 def get_datasets():
-    """ return list of tuples with short and long dataset names 
+    """ return list of tuples with short and long dataset names
         and dictionary of datasets with short name as key """
     dsets = list()
     dsdict = dict()
@@ -75,7 +75,7 @@ def get_datasets():
         else:
             dsdict[str(d.name)] = str(d.name)
             dsets.append((str(d.name), str(d.name)))
-            
+
     dsets.sort()
     return dsets, dsdict
 ###############################################################################
@@ -86,23 +86,23 @@ def print_tree(element, FILE, COLOR, REAL, indent=0):
     except:
         printf("Object %s does NOT exist.\n", element)
         sys.exit()
-    
+
     count = len(element.items)
     if count == 0:
         if COLOR:
-            pritems = " (" + colored('empty', 'magenta') + ")" 
+            pritems = " (" + colored('empty', 'magenta') + ")"
         else:
             pritems = " (empty)"
     else:
         pritems = " (" + str(count) + " items)"
 
-    printme = " "*(indent) + element.name 
+    printme = " "*(indent) + element.name
 
     if indent != 0:
         if COLOR:
-            printme += colored(' (C)', 'green') 
+            printme += colored(' (C)', 'green')
         else:
-            printme += ' (C)' 
+            printme += ' (C)'
 
     printme += pritems
     printf("%s\n", printme)
@@ -112,29 +112,30 @@ def print_tree(element, FILE, COLOR, REAL, indent=0):
             print_tree(item, FILE, COLOR, REAL, indent=indent+4)
         elif FILE:
             package = bf.get(item)
-            pkgname = package.name
+            if REAL:
+                pkgname = package.sources[0].name
+            else:
+                pkgname = package.name
             try:
                 realnam = str(package.sources[0].s3_key.split('/')[-1])
             except:
                 printf("\nERROR: unable to get real name of package: ")
                 printf("%s/%s, continuing...\n\n", element.name, pkgname)
                 continue
-            if '.' in realnam:
-                realext = realnam.split('.')[-1]
+
+            realext = False
+            for ext in extensions:
+                if realnam.lower().endswith(ext.lower()):
+                    realext = ext
+                    break
+
+            if realext == False:
+                realext = realnam.rsplit(".",1)[-1]
+
+            if pkgname[-len(realext):]==realext:
+                filename = pkgname
             else:
-                realext = ""
-            if REAL:
-                pkgname = package.sources[0].name
-                if realext in extensions or realext == "":
-                    filename = pkgname
-                else:
-                    filename = pkgname + '.' + realext
-            else:
-                pkgname = package.name
-                if realext in extensions or realext == "":
-                    filename = pkgname
-                else:
-                    filename = pkgname + '.' + realext
+                filename = pkgname.replace(realext,"")+"."+realext
 
             if COLOR:
                 printme = " "*(indent+4) + filename + colored(" (pkg)", "red")
@@ -149,10 +150,10 @@ def collection_exists(ds,name):
     return False
 ###############################################################################
 def locate_path(ds, path):
-    """ Return the object that represents where to 
+    """ Return the object that represents where to
         start to print the tree """
     dirs = path.split('/')
-    
+
     for i in range(len(dirs)):
         if dirs[i] == "":
             pass
@@ -183,7 +184,7 @@ try:
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
-    
+
 dsets, dsdict = get_datasets()
 
 for opt, arg in opts:
@@ -226,5 +227,5 @@ elif ALL:
             dset = locate_path(dset, path)
             printf("\n%s:%s\n", dataset.name, path)
         print_tree(dset, FILE, COLOR, REAL)
-else:        
+else:
     print_tree(dset, FILE, COLOR, REAL)
