@@ -44,7 +44,7 @@ import getopt
 import os
 import time
 # extensions unknown to Blackfynn
-extensions = ['gz', 'bw', 'metadata']
+extensions = ['ome.tiff', 'fastq.gz', 'bigwig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
@@ -185,20 +185,19 @@ def get_packages(pkgpaths):
         pkgname = package.name
         realnam = str(package.sources[0].s3_key.split('/')[-1])
 
-        if '.' in realnam:
-            realext = realnam.split('.')[-1]
-        else:
-            realext = ""
+        realext = False
+        for ext in extensions:
+            if realnam.lower().endswith(ext.lower()):
+                realext = ext
+                break
 
-        if realext in extensions or realext == "":
-            len_ext = len(realext)
-            # Check if extension in package name
-            if pkgname[-len_ext:]==realext:
-                filename = pkgname
-            else:
-                filename = pkgname.replace(realext,"")+"."+realext
+        if realext == False:
+            realext = realnam.rsplit(".",1)[-1]
+
+        if pkgname[-len(realext):]==realext:
+            filename = pkgname
         else:
-            filename = pkgname + '.' + realext
+            filename = pkgname.replace(realext,"")+"."+realext
 
         printf("downloading %s to %s\n", filename, unixdir)
         dlname = package.sources[0].download(filename)
