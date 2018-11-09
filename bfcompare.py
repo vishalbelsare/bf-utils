@@ -39,7 +39,7 @@ import os
 import sys
 import getopt
 # extensions unknown to Blackfynn
-extensions = ['ome.tiff', 'fatsq.gz', 'bigwig', 'bw', 'metadata']
+extensions = ['ome.tiff', 'fastq.gz', 'bigwig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfcompare -d <dataset>\n"
@@ -111,7 +111,7 @@ def get_collections(element, collections, FILE, indent=0):
                 filename = pkgname
             else:
                 filename = pkgname.replace(realext,"")+"."+realext
-                
+
             collections.append(str(indent) + ':' + filename)
 
     return collections
