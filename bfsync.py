@@ -106,15 +106,19 @@ def get_collections(element, collections, indent=0):
                 printf("%s/%s, so it will be ignored.\n", element.name, pkgname)
                 continue
 
-            if '.' in realnam:
-                realext = realnam.split('.')[-1]
-            else:
-                realext = ""
+            realext = False
+            for ext in extensions:
+                if realnam.lower().endswith(ext.lower()):
+                    realext = ext
+                    break
 
-            if realext in extensions or realext == "":
+            if realext == False:
+                realext = realnam.rsplit(".",1)[-1]
+
+            if pkgname[-len(realext):]==realext:
                 filename = pkgname
             else:
-                filename = pkgname + '.' + realext
+                filename = pkgname.replace(realext,"")+"."+realext
 
             b = str(indent) + ':' + filename + ':' + item.id
             collections.append(b)
