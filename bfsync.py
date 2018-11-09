@@ -2,11 +2,11 @@
 #===============================================================================
 #
 #          FILE:  bfsync.py
-# 
-#         USAGE:  ./bfsync.py 
-# 
-#   DESCRIPTION:  create file structure on server based on dataset structure  
-# 
+#
+#         USAGE:  ./bfsync.py
+#
+#   DESCRIPTION:  create file structure on server based on dataset structure
+#
 #       OPTIONS:  see syntax() below
 #
 #  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
@@ -15,7 +15,7 @@
 #                         and uses short name on output
 #                 171109: added --mirror option
 #                 171110: added --refresh option
-#                 171114: made --refresh default True, added --norefresh 
+#                 171114: made --refresh default True, added --norefresh
 #                         added -e to provide for exceptions
 #                 171116: file download names now use the BF name and real
 #                         extension of the uploaded filename
@@ -44,7 +44,7 @@ import getopt
 import os
 import time
 # extensions unknown to Blackfynn
-extensions = ['gz', 'bw', 'metadata']
+extensions = ['ome.tiff', 'fastq.gz', 'bigwig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
@@ -81,14 +81,14 @@ def get_datasets():
         else:
             dsdict[str(d.name)] = str(d.name)
             dsets.append((str(d.name), str(d.name)))
-            
+
     dsets.sort()
     return dsets, dsdict
 ###############################################################################
 def get_collections(element, collections, indent=0):
     """ gather the contents of a dataset to be processed later """
     element._check_exists()
-    
+
     if indent > 0:
         a = str(indent-1) + ':' + element.name
         collections.append(a)
@@ -97,8 +97,8 @@ def get_collections(element, collections, indent=0):
         if isinstance(item, BaseCollection):
             get_collections(item, collections, indent=indent+1)
         else:
-            package = bf.get(item) 
-            pkgname = package.name 
+            package = bf.get(item)
+            pkgname = package.name
             try:
                 realnam = str(package.sources[0].s3_key.split('/')[-1])
             except:
@@ -121,7 +121,7 @@ def get_collections(element, collections, indent=0):
 
     return collections
 ###############################################################################
-def localpaths(rootpath, FILE):    
+def localpaths(rootpath, FILE):
     """ retrieve local paths of directory """
     os.chdir(rootpath)
     paths = list()
@@ -143,7 +143,7 @@ def create_paths(dsetname, outdir, thelist):
         colon = i.find(':')
         indent = int(i[:colon])
         collection = i[colon+1:]
-        
+
         if indent == 0:
             path = [0] * 100
             path[0] = collection
@@ -151,12 +151,12 @@ def create_paths(dsetname, outdir, thelist):
         else:
             path[indent] = collection
             PATH = path[0]
-            
+
             for i in range(1,indent+1):
                 if path[i] != 0:
                     PATH += "/" + path[i]
-                    
-            paths.append(PATH)        
+
+            paths.append(PATH)
 
     for i in range(len(paths)):
         tmpath = paths[i].split(':')
@@ -181,19 +181,23 @@ def get_packages(pkgpaths):
         rootdir = os.getcwd()
         os.chdir(unixdir)
 
-        package = bf.get(pkg) 
+        package = bf.get(pkg)
         pkgname = package.name
         realnam = str(package.sources[0].s3_key.split('/')[-1])
-        
-        if '.' in realnam:
-            realext = realnam.split('.')[-1]
-        else:
-            realext = ""
 
-        if realext in extensions or realext == "":
+        realext = False
+        for ext in extensions:
+            if realnam.lower().endswith(ext.lower()):
+                realext = ext
+                break
+
+        if realext == False:
+            realext = realnam.rsplit(".",1)[-1]
+
+        if pkgname[-len(realext):]==realext:
             filename = pkgname
         else:
-            filename = pkgname + '.' + realext
+            filename = pkgname.replace(realext,"")+"."+realext
 
         printf("downloading %s to %s\n", filename, unixdir)
         dlname = package.sources[0].download(filename)
@@ -202,7 +206,7 @@ def get_packages(pkgpaths):
         if str(dlname) != filename:
             os.rename(str(dlname), filename)
 
-        os.chdir(rootdir) 
+        os.chdir(rootdir)
 ###############################################################################
 def mirror(dspaths, locpaths, rootdir):
     """ ensure both dataset and local directory are equal """
@@ -249,7 +253,7 @@ try:
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
-    
+
 dsets, dsdict = get_datasets()
 #################
 # process options
@@ -304,7 +308,7 @@ if DATASET:
             if ':package:' in i: continue
             if excepted(i, exlist): continue
             os.makedirs(i)
-    
+
     if not NODATA:
         start = time.time()
         pkgpaths = list()
@@ -315,7 +319,7 @@ if DATASET:
 
         get_packages(pkgpaths)
 
-        printf("\n%s Download time: %.2f seconds\n", 
+        printf("\n%s Download time: %.2f seconds\n",
                 dsname, time.time() - start)
 
     if EXCEPT:
