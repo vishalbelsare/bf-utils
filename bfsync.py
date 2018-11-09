@@ -200,7 +200,7 @@ def get_packages(pkgpaths):
             filename = pkgname.replace(realext,"")+"."+realext
 
         printf("downloading %s to %s\n", filename, unixdir)
-        dlname = package.sources[0].download(filename)
+        dlname = package.sources[0].download(realnam)
         # if no extension download methon will append  _filename as an
         # extension, so we have to rename if needed
         if str(dlname) != filename:
