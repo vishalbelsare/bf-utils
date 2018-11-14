@@ -39,12 +39,28 @@ from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
 from blackfynn.models import Collection
 from shutil import rmtree
+from sqlalchemy import create_engine
+import pandas as pd
 import sys
 import getopt
 import os
 import time
 # extensions unknown to Blackfynn
+engine = create_engine('mysql+mysqlconnector://jbergren:hpap2018@127.0.0.1:3306/hpap_records')
+conn = engine.connect()
+data_df = pd.read_sql("SELECT * FROM blackfynn_data_index", con=conn)
+conn.close()
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
+###############################################################################
+def get_extension(file_name):
+    for ext in extensions:
+        if file_name.lower().endswith(ext.lower()):
+            return ext
+        elif "."+ext in file_name:
+            return ext
+    return file_name.rsplit(".",1)[-1]
+
+data_df.loc[:,'extension'] = data_df['s3_key'].str.rsplit("/",1).str[-1].apply(get_extension)
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
@@ -170,6 +186,28 @@ def create_paths(dsetname, outdir, thelist):
     relpaths.sort()
     return paths, relpaths
 ###############################################################################
+def check_package(packid, packname, realname):
+    """Check the package in question against the recorded hpap-data
+     dataframe.
+
+     If the new package is not found in the recorded hpap-data dataframe,
+     download the file.
+
+     If it is found check:
+
+        If the new package name is different than the previous,
+        download the file.
+
+        Else - pass.
+
+    """
+    if packid in data_df.Packid.values.tolist():
+        row = data_df[data_df['Packid']==packid]
+        old_packname = row['Packname'].astype(str).values[0]
+        if old_packname == packname and os.path.isfile(realname):
+            return "Pass"
+    return "Download"
+###############################################################################
 def get_packages(pkgpaths):
     """ download the data into the UNIX directories from the BF server """
     for path in pkgpaths:
@@ -203,12 +241,15 @@ def get_packages(pkgpaths):
         else:
             filename = pkgname.replace(realext,"")+"."+realext
 
-        printf("downloading %s to %s\n", filename, unixdir)
-        dlname = package.sources[0].download(realnam)
-        # if no extension download methon will append  _filename as an
-        # extension, so we have to rename if needed
-        if str(dlname) != filename:
-            os.rename(str(dlname), filename)
+        pack_check = check_package(pkg, pkgname, filename)
+
+        if pack_check=="Download":
+            printf("downloading %s to %s\n", filename, unixdir)
+            dlname = package.sources[0].download(realnam)
+            if str(dlname) != filename:
+                os.rename(str(dlname), filename)
+        else:
+            printf("passing %s, no changes to file\n", filename)
 
         os.chdir(rootdir)
 ###############################################################################
@@ -229,7 +270,6 @@ def mirror(dspaths, locpaths, rootdir):
             elif os.path.isfile(abspath):
                 print os.getcwd(), abspath
                 os.unlink(abspath)
-
 ###############################################################################
 def excepted(package, exlist):
     """ return True if package found in exlist """
