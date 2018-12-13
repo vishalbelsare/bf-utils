@@ -110,6 +110,8 @@ def get_collections(element, collections, indent=0):
             for ext in extensions:
                 if realnam.lower().endswith(ext.lower()):
                     realext = ext
+                    if realext == "bigWig":
+                        realext = "bw"
                     break
 
             if realext == False:
