@@ -39,28 +39,13 @@ from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
 from blackfynn.models import Collection
 from shutil import rmtree
-from sqlalchemy import create_engine
 import pandas as pd
 import sys
 import getopt
 import os
 import time
 # extensions unknown to Blackfynn
-engine = create_engine('mysql+mysqlconnector://jbergren:hpap2018@127.0.0.1:3306/hpap_records')
-conn = engine.connect()
-data_df = pd.read_sql("SELECT * FROM blackfynn_data_index", con=conn)
-conn.close()
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
-###############################################################################
-def get_extension(file_name):
-    for ext in extensions:
-        if file_name.lower().endswith(ext.lower()):
-            return ext
-        elif "."+ext in file_name:
-            return ext
-    return file_name.rsplit(".",1)[-1]
-
-data_df.loc[:,'extension'] = data_df['s3_key'].str.rsplit("/",1).str[-1].apply(get_extension)
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
@@ -76,6 +61,7 @@ def syntax():
     SYNTAX += "refresh)\n\n"
     SYNTAX += "       -h (help)\n"
     SYNTAX += "       -l (list datasets)\n"
+    SYNTAX += "       -q (quick sync, check for presence of file before downloading)\n"
     return SYNTAX
 ###############################################################################
 def printf(format, *args):
@@ -175,7 +161,6 @@ def create_paths(dsetname, outdir, thelist):
             for i in range(1,indent+1):
                 if path[i] != 0:
                     PATH += "/" + path[i]
-
             paths.append(PATH)
 
     for i in range(len(paths)):
@@ -201,14 +186,14 @@ def check_package(packid, packname, realname):
         Else - pass.
 
     """
-    if packid in data_df.Packid.values.tolist():
-        row = data_df[data_df['Packid']==packid]
-        old_packname = row['Packname'].astype(str).values[0]
+    if packname in data_df.file_name_clean.values.tolist():
+        row = data_df[data_df['file_name_clean']==packname]
+        old_packname = row['file_name_clean'].astype(str).values[0]
         if old_packname == packname and os.path.isfile(realname):
             return "Pass"
     return "Download"
 ###############################################################################
-def get_packages(pkgpaths):
+def get_packages(pkgpaths, quick_refresh = False):
     """ download the data into the UNIX directories from the BF server """
     for path in pkgpaths:
         pathlist = path.split('/')
@@ -241,15 +226,20 @@ def get_packages(pkgpaths):
         else:
             filename = pkgname.replace(realext,"")+"."+realext
 
-        pack_check = check_package(pkg, pkgname, filename)
+        if quick_refresh:
+            pack_check = check_package(pkg, pkgname, filename)
 
-        if pack_check=="Download":
-            printf("downloading %s to %s\n", filename, unixdir)
+            if pack_check=="Download":
+                printf("downloading %s to %s\n", filename, unixdir)
+                dlname = package.sources[0].download(realnam)
+                if str(dlname) != filename:
+                    os.rename(str(dlname), filename)
+            else:
+                printf("passing %s, no changes to file\n", filename)
+        else:
             dlname = package.sources[0].download(realnam)
             if str(dlname) != filename:
                 os.rename(str(dlname), filename)
-        else:
-            printf("passing %s, no changes to file\n", filename)
 
         os.chdir(rootdir)
 ###############################################################################
@@ -278,11 +268,22 @@ def excepted(package, exlist):
             return True
     return False
 ###############################################################################
+def extension_remover(file_name):
+    for ext in extensions:
+        if "."+ext in file_name:
+            return file_name.replace("."+ext,"")
+
+    if file_name.count(".")==1:
+        return file_name.rsplit(".",1)[0]
+
+    return file_name
+###############################################################################
 # program starts HERE
 bf = Blackfynn()  # use 'default' profile
 outdir = './'
 NODATA = MIRROR = EXCEPT = DATASET = False
 REFRESH = True # default value
+QUICKSYNC = False
 HPAPURL = 'https://hpap.pmacs.upenn.edu/services/refreshDirectories'
 
 if len(sys.argv) < 2:
@@ -292,7 +293,7 @@ if len(sys.argv) < 2:
 argv = sys.argv[1:]
 
 try:
-    opts, args = getopt.getopt(argv, "hlp:d:e:",
+    opts, args = getopt.getopt(argv, "hlp:d:e:q",
             ['mirror', 'nodata', 'norefresh', 'refresh'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
@@ -330,6 +331,8 @@ for opt, arg in opts:
         except:
             printf("Dataset, %s, does NOT exist.\n", arg)
             sys.exit()
+    elif opt == '-q':
+        QUICKSYNC = True
 #################
 # start the sync
 #################
@@ -361,7 +364,17 @@ if DATASET:
             if ':package:' in i and not excepted(i,exlist):
                 pkgpaths.append(i)
 
-        get_packages(pkgpaths)
+        if QUICKSYNC:
+            hpap_files = []
+            for root, b, files in os.walk(outdir):
+                hpap_files.extend([[root, x] for x in files])
+
+            data_df = pd.DataFrame(hpap_files, columns=['root','file_name'])
+            data_df.loc[:,'file_name_clean'] = data_df.file_name.apply(extension_remover)
+            get_packages(pkgpaths, quick_refresh=True)
+
+        else:
+            get_packages(pkgpaths)
 
         printf("\n%s Download time: %.2f seconds\n",
                 dsname, time.time() - start)
