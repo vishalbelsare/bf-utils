@@ -227,6 +227,10 @@ def get_packages(pkgpaths, quick_refresh = False):
             filename = pkgname
         else:
             filename = pkgname.replace(realext,"")+"."+realext
+            
+        # control bigwig extension
+        if "bigWig" in filename.rsplit(".",1)[-1]:
+            filename = filename.replace(".bigWig",".bw")
 
         if quick_refresh:
             pack_check = check_package(pkg, pkgname, filename)
