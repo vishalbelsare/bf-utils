@@ -208,6 +208,10 @@ def get_packages(pkgpaths, quick_refresh = False):
         pkg = ':'.join(pkg)
 
         rootdir = os.getcwd()
+
+        if os.path.isdir(unixdir)==False:
+            os.makedirs(unixdir)
+
         os.chdir(unixdir)
 
         package = bf.get(pkg)
@@ -227,7 +231,7 @@ def get_packages(pkgpaths, quick_refresh = False):
             filename = pkgname
         else:
             filename = pkgname.replace(realext,"")+"."+realext
-            
+
         # control bigwig extension
         if "bigWig" in filename.rsplit(".",1)[-1]:
             filename = filename.replace(".bigWig",".bw")
@@ -269,9 +273,8 @@ def mirror(dspaths, locpaths, rootdir):
 ###############################################################################
 def excepted(package, exlist):
     """ return True if package found in exlist """
-    for i in exlist:
-        if i in package:
-            return True
+    if package in exlist:
+        return True
     return False
 ###############################################################################
 def extension_remover(file_name):
@@ -357,9 +360,9 @@ if DATASET:
 
     printf("\nCreating local directory structure in %s if necessary\n", outdir)
     for i in dspaths:
-        if not os.path.exists(i):
+        if not os.path.isdir(i):
             if ':package:' in i: continue
-            if excepted(i, exlist): continue
+            if not excepted(i, exlist): continue
             os.makedirs(i)
 
     if not NODATA:
@@ -367,7 +370,8 @@ if DATASET:
         pkgpaths = list()
         printf("\nRetrieving Dataset packages to %s\n", outdir)
         for i in dspaths:
-            if ':package:' in i and not excepted(i,exlist):
+            file_name = i.rsplit("/",1)[-1].split(":",1)[0].strip()
+            if ':package:' in i and file_name not in exlist:
                 pkgpaths.append(i)
 
         if QUICKSYNC:
@@ -388,8 +392,14 @@ if DATASET:
     if EXCEPT:
         import subprocess
         for f in exlist:
-            d = outdir + '/' + dsname + '/' + f
-            subprocess.call(['rm', '-rvf', d])
+            match = [x for x in dspaths if f in x]
+            if len(match) > 0:
+                # There should only ever be one match
+                # for each file in the exception list
+                check_file = os.path.isfile(match[0])
+                if check_file:
+                    printf("\nRemoving exception file: {0}\n".format(f))
+                    os.remove(match[0])
 
 if MIRROR and DATASET:
     printf("\nMirroring Dataset and Local...\n\n")
