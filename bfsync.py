@@ -271,9 +271,10 @@ def mirror(dspaths, locpaths, rootdir):
                 print os.getcwd(), abspath
                 os.unlink(abspath)
 ###############################################################################
-def excepted(package, exlist):
+def excepted(item, exlist):
     """ return True if package found in exlist """
-    if package in exlist:
+    checks = [item in x for x in exlist]
+    if any(checks):
         return True
     return False
 ###############################################################################
@@ -370,8 +371,11 @@ if DATASET:
         pkgpaths = list()
         printf("\nRetrieving Dataset packages to %s\n", outdir)
         for i in dspaths:
-            file_name = i.rsplit("/",1)[-1].split(":",1)[0].strip()
-            if ':package:' in i and file_name not in exlist:
+            if ":package:" not in i: continue
+            package_split = i.rsplit("/",1)[-1].split(":",1)
+            file_name = package_split[0]
+            package_id = package_split[1]
+            if not excepted(file_name, exlist) and not excepted(package_id, exlist):
                 pkgpaths.append(i)
 
         if QUICKSYNC:
@@ -390,16 +394,17 @@ if DATASET:
                 dsname, time.time() - start)
 
     if EXCEPT:
-        import subprocess
+        printf("\nChecking for Exception files ...\n")
         for f in exlist:
             match = [x for x in dspaths if f in x]
             if len(match) > 0:
+                del_file = match[0].split(":",1)[0]
                 # There should only ever be one match
                 # for each file in the exception list
-                check_file = os.path.isfile(match[0])
+                check_file = os.path.isfile(del_file)
                 if check_file:
-                    printf("\nRemoving exception file: {0}\n".format(f))
-                    os.remove(match[0])
+                    printf("\nRemoving %s ...\n", f)
+                    os.remove(del_file)
 
 if MIRROR and DATASET:
     printf("\nMirroring Dataset and Local...\n\n")

@@ -103,7 +103,7 @@ def get_collections(element, collections, indent=0):
 
 dsets, dsdict = get_datasets()
 
-with open("D:/bfsync/HPAP001.exceptions.txt", "r") as f:
+with open("/home/jbergren/bfsync/HPAP001.exceptions.txt", "r") as f:
     exlist = f.read().splitlines()
 
 exlist
@@ -111,7 +111,7 @@ exlist
 dsname = "HPAP-001"
 dset = bf.get_dataset(dsdict[dsname])
 
-outdir = "/hpapdata"
+outdir = "/home/jbergren/jake_hpapdata"
 
 collections = list()
 
@@ -125,24 +125,35 @@ def excepted(package, exlist):
         return True
     return False
 
-for i in dspaths:
-    file_name = i.rsplit("/",1)[-1].split(":",1)[0].strip()
-    except_pkg = excepted(file_name, exlist)
-    if file_name in exlist:
-        print(file_name)
-
 pkgpaths = list()
 for i in dspaths:
-    file_name = i.rsplit("/",1)[-1].split(":",1)[0].strip()
-    if ':package:' in i and  file_name not in exlist:
+    if ":package:" not in i: continue
+    package_split = i.rsplit("/",1)[-1].split(":",1)
+    file_name = package_split[0]
+    package_id = package_split[1]
+    if not excepted(file_name, exlist) and not excepted(package_id, exlist):
         pkgpaths.append(i)
+    else:
+        print(file_name, package_id)
 
 # Match file name in exlist to dspaths full file path, if file exists, remove
+
 for f in exlist:
     match = [x for x in dspaths if f in x]
     if len(match) > 0:
+        del_file = match[0].split(":",1)[0]
         # There should only ever be one match
         # for each file in the exception list
-        check_file = os.path.isfile(match[0])
+        check_file = os.path.isfile(del_file)
         if check_file:
-            os.remove(match[0])
+            os.remove(del_file)
+
+def excepted(item, exlist):
+    """ return True if package found in exlist """
+    checks = [item in x for x in exlist]
+    if any(checks):
+        return True
+    return False
+
+excepted("HPAP-001_Histology_Duodenum-unsure-of-orientation_FFPE_H-and-E_1.svs", exlist)
+excepted("HPAP-001_Histology_Spleen_FFPE_H-and-E_1.svs", exlist)
