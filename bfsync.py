@@ -44,6 +44,7 @@ import sys
 import getopt
 import os
 import time
+import re
 # extensions unknown to Blackfynn
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
 ###############################################################################
@@ -131,15 +132,16 @@ def get_collections(element, collections, indent=0):
 ###############################################################################
 def localpaths(rootpath, FILE):
     """ retrieve local paths of directory """
-    os.chdir(rootpath)
     paths = list()
-    for r, d, f in os.walk('.'):
+    for r, d, f in os.walk(rootpath):
+        d = [r + "/" + x for x in d]
+        f = [r + "/" + x for x in f]
         if FILE:
             dirlist = d + f
         else:
             dirlist = d
         for path in dirlist:
-            paths.append((r + '/' + path)[2:])
+             paths.append(path.replace("\\\\","/").replace("\\","/"))
     paths.sort()
     return paths
 ###############################################################################
@@ -191,7 +193,7 @@ def check_package(packid, packname, realname):
     if packname in data_df.file_name_clean.values.tolist():
         row = data_df[data_df['file_name_clean']==packname]
         old_packname = row['file_name_clean'].astype(str).values[0]
-        if old_packname == packname and os.path.isfile(realname):
+        if os.path.isfile(realname):
             return "Pass"
     return "Download"
 ###############################################################################
@@ -208,10 +210,18 @@ def get_packages(pkgpaths, quick_refresh = False):
         pkg = ':'.join(pkg)
 
         rootdir = os.getcwd()
+
+        if os.path.isdir(unixdir)==False:
+            os.makedirs(unixdir)
+
         os.chdir(unixdir)
 
         package = bf.get(pkg)
-        pkgname = package.name
+        try:
+            pkgname = package.name
+        except AttributeError:
+            return
+
         realnam = str(package.sources[0].s3_key.split('/')[-1])
 
         realext = False
@@ -227,7 +237,7 @@ def get_packages(pkgpaths, quick_refresh = False):
             filename = pkgname
         else:
             filename = pkgname.replace(realext,"")+"."+realext
-            
+
         # control bigwig extension
         if "bigWig" in filename.rsplit(".",1)[-1]:
             filename = filename.replace(".bigWig",".bw")
@@ -239,7 +249,10 @@ def get_packages(pkgpaths, quick_refresh = False):
                 printf("downloading %s to %s\n", filename, unixdir)
                 dlname = package.sources[0].download(realnam)
                 if str(dlname) != filename:
-                    os.rename(str(dlname), filename)
+                    try:
+                        os.rename(str(dlname), filename)
+                    except OSError:
+                        None
             else:
                 printf("passing %s, no changes to file\n", filename)
         else:
@@ -252,26 +265,27 @@ def get_packages(pkgpaths, quick_refresh = False):
 def mirror(dspaths, locpaths, rootdir):
     """ ensure both dataset and local directory are equal """
     dspaths.sort(reverse=True)
+    # Remove Blackfynn :package: ending to match local paths
+    dspaths = [":".join(x.split(":",2)[:2]) for x in dspaths]
     locpaths.sort(reverse=True)
 
     for i in range(len(locpaths)):
         if locpaths[i] not in dspaths:
             printf("%s does not exist in dataset, \n\tremoving ", locpaths[i])
-            abspath = rootdir + '/' + locpaths[i]
-            printf("%s\n", abspath)
+            printf("%s\n", locpaths[i])
 
-            if os.path.isdir(abspath):
-                print os.getcwd(), abspath
-                rmtree(abspath)
-            elif os.path.isfile(abspath):
-                print os.getcwd(), abspath
-                os.unlink(abspath)
+            if os.path.isdir(locpaths[i]):
+               print os.getcwd(), locpaths[i]
+               os.removedirs(locpaths[i])
+            elif os.path.isfile(locpaths[i]):
+               print os.getcwd(), locpaths[i]
+               os.unlink(locpaths[i])
 ###############################################################################
-def excepted(package, exlist):
+def excepted(item, exlist):
     """ return True if package found in exlist """
-    for i in exlist:
-        if i in package:
-            return True
+    checks = [item in x for x in exlist]
+    if any(checks):
+        return True
     return False
 ###############################################################################
 def extension_remover(file_name):
@@ -333,7 +347,10 @@ for opt, arg in opts:
         DATASET = True
         try:
             dsname = arg
-            dset = bf.get_dataset(dsdict[dsname])
+            if dsname.lower() != "all":
+                dset = bf.get_dataset(dsdict[dsname])
+            else:
+                dset = "all"
         except:
             printf("Dataset, %s, does NOT exist.\n", arg)
             sys.exit()
@@ -342,7 +359,7 @@ for opt, arg in opts:
 #################
 # start the sync
 #################
-if DATASET:
+if DATASET and dsname != "all":
     printf("Gathering Collections from %s ...\n",dset.name)
     collections = list()
     dslist = get_collections(dset,collections)
@@ -357,9 +374,9 @@ if DATASET:
 
     printf("\nCreating local directory structure in %s if necessary\n", outdir)
     for i in dspaths:
-        if not os.path.exists(i):
+        if not os.path.isdir(i):
             if ':package:' in i: continue
-            if excepted(i, exlist): continue
+            if not excepted(i, exlist): continue
             os.makedirs(i)
 
     if not NODATA:
@@ -367,7 +384,11 @@ if DATASET:
         pkgpaths = list()
         printf("\nRetrieving Dataset packages to %s\n", outdir)
         for i in dspaths:
-            if ':package:' in i and not excepted(i,exlist):
+            if ":package:" not in i: continue
+            package_split = i.rsplit("/",1)[-1].split(":",1)
+            file_name = package_split[0]
+            package_id = package_split[1]
+            if not excepted(file_name, exlist) and not excepted(package_id, exlist):
                 pkgpaths.append(i)
 
         if QUICKSYNC:
@@ -386,16 +407,98 @@ if DATASET:
                 dsname, time.time() - start)
 
     if EXCEPT:
-        import subprocess
+        printf("\nChecking for Exception files ...\n")
         for f in exlist:
-            d = outdir + '/' + dsname + '/' + f
-            subprocess.call(['rm', '-rvf', d])
+            match = [x for x in dspaths if f in x]
+            if len(match) > 0:
+                del_file = match[0].split(":",1)[0]
+                # There should only ever be one match
+                # for each file in the exception list
+                check_file = os.path.isfile(del_file)
+                if check_file:
+                    printf("\nRemoving %s ...\n", f)
+                    os.remove(del_file)
+elif dsname.lower() == "all":
+    # Iterate through all HPAP-000 (00D0000) keys and download
+    printf("\nGathering all HPAP Datasets ... \n")
+    dspaths = []
+    relpaths = []
+    for dataset in [x for x in dsets if re.match(r"HPAP-\d{3}\s\(\d{2}\D\d{4}\)", x[1])]:
+        dsname = dataset[0]
+        dset = bf.get_dataset(dsdict[dsname])
+        printf("Gathering Collections from %s ...\n",dset.name)
+        collections = list()
+        dslist = get_collections(dset,collections)
+        d_dspaths,d_relpaths = create_paths(dsname, outdir, dslist)
+        dspaths.extend(d_dspaths)
+        relpaths.extend(d_relpaths)
+
+    dspaths.sort()
+
+    if EXCEPT:
+        with open(exfile) as f:
+            exlist = f.read().splitlines()
+    else:
+        exlist = list()
+
+    printf("\nCreating local directory structure in %s if necessary\n", outdir)
+    for i in dspaths:
+        if not os.path.isdir(i):
+            if ':package:' in i: continue
+            if not excepted(i, exlist): continue
+            os.makedirs(i)
+
+    if not NODATA:
+        start = time.time()
+        pkgpaths = list()
+        printf("\nRetrieving Dataset packages to %s\n", outdir)
+        for i in dspaths:
+            if ":package:" not in i: continue
+            package_split = i.rsplit("/",1)[-1].split(":",1)
+            file_name = package_split[0]
+            package_id = package_split[1]
+            if not excepted(file_name, exlist) and not excepted(package_id, exlist):
+                pkgpaths.append(i)
+
+        if QUICKSYNC:
+            hpap_files = []
+            for root, b, files in os.walk(outdir):
+                hpap_files.extend([[root, x] for x in files])
+
+            data_df = pd.DataFrame(hpap_files, columns=['root','file_name'])
+            data_df.loc[:,'file_name_clean'] = data_df.file_name.apply(extension_remover)
+            get_packages(pkgpaths, quick_refresh=True)
+
+        else:
+            get_packages(pkgpaths)
+
+        printf("\n%s Download time: %.2f seconds\n",
+            "All Donors", time.time() - start)
+
+    if EXCEPT:
+        printf("\nChecking for Exception files ...\n")
+        for f in exlist:
+            match = [x for x in dspaths if f in x]
+            if len(match) > 0:
+                del_file = match[0].split(":",1)[0]
+                # There should only ever be one match
+                # for each file in the exception list
+                check_file = os.path.isfile(del_file)
+                if check_file:
+                    printf("\nRemoving %s ...\n", f)
+                    os.remove(del_file)
+
 
 if MIRROR and DATASET:
     printf("\nMirroring Dataset and Local...\n\n")
     rootdir = outdir + '/' + dsname
     locpaths = localpaths(rootdir, not NODATA)
-    mirror(relpaths, locpaths, rootdir)
+    mirror(dspaths, locpaths, rootdir)
+elif MIRROR and not DATASET:
+    printf("\nMirroring All Datasets and Local...\n\n")
+    rootdir = outdir
+    locpaths = localpaths(rootdir, not NODATA)
+    mirror(dspaths, locpaths, rootdir)
 
 if REFRESH:
     import requests
