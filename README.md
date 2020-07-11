@@ -1,5 +1,33 @@
 # bf-utils
 Blackfynn Utilities for dealing with the Datasets from the Linux command line
+
+## Prerequisites
+```
+Python 2.7.10+ and packages
+    blackfynn
+    datetime
+    getopt
+    os
+    requests
+    shutil
+    sys
+    termcolor
+    time
+    urllib3
+
+Python 3.7 and packages
+    blackfynn
+    pandas
+```
+
+## Note:
+1. Each command comes with a -h option for help and a -l option to list all datasets available to the user
+2. Package installation:
+     * [Blackfynn client](https://developer.blackfynn.io/python/latest/index.html)
+     * [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
+3. We are in the process of switching to Python3.7. The following scripts work for 3.7.
+     * bfsync.py
+
 ### bfcompare.py
 bfcompare shows the differences between two datasets or a dataset and a local directory that was created with bfsync.
 ```
@@ -117,13 +145,14 @@ Note: -d, -f and --all are mutually exlusive
 bfsync will clone a dataset to a local directory (including data if requested)
 ```
 bfsync -d <dataset>
+       -c <data category, same categories as https://hpap.pmacs.upenn.edu/explore/download?category>
        -p <output path for local dataset storage> (default is $PWD)
        -e <file containing exception paths>
        --nodata (do not include data)
        --mirror (remove local data/directories to mirror dataset)
        --refresh (send a signal to hpap data website to refresh. this is the default)
        --norefresh (do not send signal to hpap data website to refresh)
-
+       
        -h (help)
        -l (list datasets)
 ```
@@ -142,20 +171,4 @@ bftree -d <dataset>
 
 Note: -d and --all are mutually exclusive
 ```
-## Prerequisites
-```
-Python 2.7.10+ and packages
-    blackfynn
-    datetime
-    getopt
-    os
-    requests
-    shutil
-    sys
-    termcolor
-    time
-    urllib3
-```
-## Note:
-*Each command comes with a -h option for help and a -l option to list all 
-datasets available to the user*
+
