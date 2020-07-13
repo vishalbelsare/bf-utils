@@ -23,7 +23,7 @@ Python 3.7 and packages
 ## Note:
 1. Each command comes with a -h option for help and a -l option to list all datasets available to the user
 2. Package installation:
-     * [Blackfynn client](https://developer.blackfynn.io/python/latest/index.html)
+     * [Blackfynn client](https://developer.blackfynn.io/python/latest/quickstart.html#installation)
      * [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
 3. We are in the process of switching to Python3.7. The following scripts work for 3.7.
      * bfsync.py
