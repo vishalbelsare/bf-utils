@@ -156,6 +156,11 @@ bfsync -d <dataset>
        -h (help)
        -l (list datasets)
 ```
+
+*Data Download* 
+1. Share [bfsync.py](bfsync.py) and [this instruction file](DataDownload.txt)
+2. The instruction file contains Blackfynn API token and secret for account ibihpap@gmail.com. 
+
 ### bftree.py
 bftree shows the content of a dataset in tree format
 ```
