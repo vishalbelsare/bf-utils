@@ -157,7 +157,7 @@ bfsync -d <dataset>
        -l (list datasets)
 ```
 
-*Data Download* 
+*Data Download* (**This should only be used by HPAP groups because of the Blackfynn license limit**)
 1. Share [bfsync.py](bfsync.py) and [this instruction file](DataDownload.txt)
 2. The instruction file contains Blackfynn API token and secret for account ibihpap@gmail.com. 
 
