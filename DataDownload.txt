@@ -4,8 +4,8 @@ The steps below are for HPAP data downloading.
      - Pandas https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html
      - Blackfynn client https://developer.blackfynn.io/python/latest/quickstart.html#installation
          * After blackfynn installation, please set the "bf_profile"
-         * API token: ba5cce28-0608-431a-a5a8-08b939877362
-         * API secret: b8f7388c-4984-4e5d-9424-75e54305fb13
+         * API token: [To Be Set]
+         * API secret: [To Be Set]
 3. Download data
      - Command: python bfsync.py [options, or -h for help]
      - For example, to download scRNAseq data for donor HPAP-008, the command is:
