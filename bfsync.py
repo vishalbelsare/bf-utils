@@ -45,23 +45,11 @@ import getopt
 import os
 import time
 import re
-
 # extensions unknown to Blackfynn
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
-
-categories = [
-    "Clinical data", "B cell receptor repertoire", "Flow panels for B cells",
-    "Flow cytometry - Immune lineage", "Histology", "CyTOF", "ATACseq",
-    "mRNAseq", "Sequencing data for sorted cells/Sort data", "WGBS", "Single-cell RNAseq", "Calcium imaging",
-    "Patch-Clamp", "Oxygen consumption", "Morphology and viability", "Perifusions",
-    "Imaging mass cytometry", "ATAQseq", "Tetramer Ag specific studies by FACS"
-]
-
 ###############################################################################
 def syntax():
     SYNTAX =  "\nbfsync -d <dataset> \n"
-    SYNTAX += "       -c <data category, "
-    SYNTAX += "same categories as https://hpap.pmacs.upenn.edu/explore/download?category> \n"
     SYNTAX += "       -p <output path for local dataset storage> "
     SYNTAX += "(default is $PWD)\n"
     SYNTAX += "       -e <file containing exception paths>\n"
@@ -287,10 +275,10 @@ def mirror(dspaths, locpaths, rootdir):
             printf("%s\n", locpaths[i])
 
             if os.path.isdir(locpaths[i]):
-               print(os.getcwd(), locpaths[i])
+               print os.getcwd(), locpaths[i]
                os.removedirs(locpaths[i])
             elif os.path.isfile(locpaths[i]):
-               print(os.getcwd(), locpaths[i])
+               print os.getcwd(), locpaths[i]
                os.unlink(locpaths[i])
 ###############################################################################
 def excepted(item, exlist):
@@ -313,7 +301,7 @@ def extension_remover(file_name):
 # program starts HERE
 bf = Blackfynn()  # use 'default' profile
 outdir = './'
-NODATA = MIRROR = EXCEPT = DATASET = CATEGORY = False
+NODATA = MIRROR = EXCEPT = DATASET = False
 REFRESH = True # default value
 QUICKSYNC = False
 HPAPURL = 'https://hpap.pmacs.upenn.edu/services/refreshDirectories'
@@ -325,7 +313,8 @@ if len(sys.argv) < 2:
 argv = sys.argv[1:]
 
 try:
-    opts, args = getopt.getopt(argv, "hlp:d:c:e:q", ['mirror', 'nodata', 'norefresh', 'refresh'])
+    opts, args = getopt.getopt(argv, "hlp:d:e:q",
+            ['mirror', 'nodata', 'norefresh', 'refresh'])
 except getopt.GetoptError:
     printf("%s\n", syntax())
     sys.exit()
@@ -354,12 +343,6 @@ for opt, arg in opts:
     elif opt in ('-l'):
         for ds in dsets: printf("%s\n", ds[0])
         sys.exit()
-    elif opt in ('-c'):
-        CATEGORY = True
-        cat = arg
-        if cat not in categories:
-            printf("Category, %s, does NOT exist.\n", arg)
-            sys.exit()
     elif opt in ('-d'):
         DATASET = True
         try:
@@ -401,9 +384,6 @@ if DATASET and dsname != "all":
         pkgpaths = list()
         printf("\nRetrieving Dataset packages to %s\n", outdir)
         for i in dspaths:
-            if CATEGORY:
-                if cat not in i:
-                    continue
             if ":package:" not in i: continue
             package_split = i.rsplit("/",1)[-1].split(":",1)
             file_name = package_split[0]
