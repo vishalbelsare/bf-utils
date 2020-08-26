@@ -106,7 +106,7 @@ def insert_collection(dset, collection, insert_where):
     FOUND = False
     if len(ds.items) > 0:
         for item in ds.items:
-            if collection == item.name: #replaced if collection in item.name with "=="
+            if collection in item.name:
                 FOUND = True
                 break
     if FOUND:
