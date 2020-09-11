@@ -8,6 +8,7 @@ The steps below are for HPAP data downloading.
          * API secret: [To Be Set]
 3. Download data
      - Command: python bfsync.py [options, or -h for help]
+     - Data categories: "Clinical data", "B cell receptor repertoire", "Flow panels for B cells", "Flow cytometry - Immune lineage", "Histology", "CyTOF", "ATACseq", "mRNAseq", "Sequencing data for sorted cells/Sort data", "WGBS", "Single-cell RNAseq", "Calcium imaging", "Patch-Clamp", "Oxygen consumption", "Morphology and viability", "Perifusions", "Imaging mass cytometry", "ATAQseq", "Tetramer Ag specific studies by FACS".
      - For example, to download scRNAseq data for donor HPAP-008, the command is:
      
          python bfsync.py -d "HPAP-008" -c "Single-cell RNAseq" 
