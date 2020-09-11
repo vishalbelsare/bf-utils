@@ -145,7 +145,11 @@ Note: -d, -f and --all are mutually exlusive
 bfsync will clone a dataset to a local directory (including data if requested)
 ```
 bfsync -d <dataset>
-       -c <data category, same categories as https://hpap.pmacs.upenn.edu/explore/download?category>
+       -c <data category, e.g. "Clinical data", "B cell receptor repertoire", "Flow panels for B cells",
+    "Flow cytometry - Immune lineage", "Histology", "CyTOF", "ATACseq",
+    "mRNAseq", "Sequencing data for sorted cells/Sort data", "WGBS", "Single-cell RNAseq", "Calcium imaging",
+    "Patch-Clamp", "Oxygen consumption", "Morphology and viability", "Perifusions",
+    "Imaging mass cytometry", "ATAQseq", "Tetramer Ag specific studies by FACS">
        -p <output path for local dataset storage> (default is $PWD)
        -e <file containing exception paths>
        --nodata (do not include data)
