@@ -7,9 +7,9 @@
 #
 #   DESCRIPTION:
 #
-#       OPTIONS:  see syntax() below
+#       OPTIONS:  see usage below
 #
-#  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
+#  REQUIREMENTS:  Python 3.x, blackfynn python library, blackfynn key
 #       UPDATES:  170911: Added CLI opt/arg processing
 #                 170922: Added -f option to show files
 #                 171009: Check for existence of dataset
@@ -27,85 +27,91 @@
 #                 180521: added test for package avail in print_tree()
 #                 180810: added an additional check for extension
 #                 181106: removed pptx and tif from extensions list
-#        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu
+#
+#                 2021-04-22: Fix the bug, pythonized the coding styles
+#
+#        AUTHOR:  Pete Schmitt (debtfree), pschmitt@upenn.edu & Dongbo Hu (dongbo@upenn.edu)
 #       COMPANY:  University of Pennsylvania
-#       VERSION:  0.6.1
+#       VERSION:  0.6.2
 #       CREATED:  09/06/2017 16:54:33 EDT
-#      REVISION:  Tue Nov  6 15:07:23 EST 2018
+#      REVISION:  2021-04-22
 #===============================================================================
+
+import getopt
+import sys
+from datetime import datetime
 
 from blackfynn import Blackfynn
 from blackfynn.models import BaseCollection
 from blackfynn.models import Collection
 from termcolor import colored
-import sys
-import getopt
+
+__version__ = "0.6.2"
+
 bf = Blackfynn()  # use 'default' profile
+
 # extensions unknown to Blackfynn
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
-###############################################################################
-def syntax():
-    SYNTAX =   "\nbftree -d <dataset> \n"
-    SYNTAX +=  "       --all (loop on all HPAP datasets)\n"
-    SYNTAX +=  "       -p <path to start tree>\n"
-    SYNTAX +=  "       --data (show packages in output)\n"
-    SYNTAX +=  "       --realdata (show packages as uploaded names)\n"
-    SYNTAX +=  "       --nocolor (no colorful output)\n\n"
-    SYNTAX +=  "       -h (help)\n"
-    SYNTAX +=  "       -l (list datasets)\n\n"
-    SYNTAX +=  "Note: -d and --all are mutually exclusive\n"
-    return SYNTAX
-###############################################################################
-def printf(format, *args):
-    """ works just like the C/C++ printf function """
-    sys.stdout.write(format % args)
-    sys.stdout.flush()
-###############################################################################
+
+
+def flush_print(message="", with_time=False):
+    if with_time:
+        message = f"{datetime.now()}: {message}"
+
+    print(message, flush=True)
+
+
 def get_datasets():
-    """ return list of tuples with short and long dataset names
-        and dictionary of datasets with short name as key """
+    """
+    Return list of tuples with short and long dataset names and
+    dictionary of datasets with short name as key.
+    """
+
     dsets = list()
-    dsdict = dict()
+    ds_dict = dict()
     ds = bf.datasets()
     for d in ds:
         if 'HPAP-' in d.name:
             tmp = d.name.split()
-            dsdict[str(tmp[0])] = str(d.name)
+            ds_dict[str(tmp[0])] = str(d.name)
             dsets.append((str(tmp[0]), str(d.name)))
         else:
-            dsdict[str(d.name)] = str(d.name)
+            ds_dict[str(d.name)] = str(d.name)
             dsets.append((str(d.name), str(d.name)))
 
     dsets.sort()
-    return dsets, dsdict
-###############################################################################
-def print_tree(element, FILE, COLOR, REAL, indent=0):
-    """ print the contents of a dataset as a tree """
+    return dsets, ds_dict
+
+
+def print_tree(element, FILE, COLOR, REAL, indent=0, verbose=True):
+    """Print the contents of a dataset as a tree."""
+
     try:
         element._check_exists()
     except:
-        printf("Object %s does NOT exist.\n", element)
-        sys.exit()
+        if verbose:
+            flush_print(f"Object '{element}' does NOT exist when printing the tree")
+        return
 
     count = len(element.items)
     if count == 0:
         if COLOR:
-            pritems = " (" + colored('empty', 'magenta') + ")"
+            pr_items = " (" + colored('empty', 'magenta') + ")"
         else:
-            pritems = " (empty)"
+            pr_items = " (empty)"
     else:
-        pritems = " (" + str(count) + " items)"
+        pr_items = " (" + str(count) + " items)"
 
-    printme = " "*(indent) + element.name
+    print_me = " " * (indent) + element.name
 
     if indent != 0:
         if COLOR:
-            printme += colored(' (C)', 'green')
+            print_me += colored(' (C)', 'green')
         else:
-            printme += ' (C)'
+            print_me += ' (C)'
 
-    printme += pritems
-    printf("%s\n", printme)
+    print_me += pr_items
+    flush_print(print_me)
 
     for item in element.items:
         if isinstance(item, BaseCollection):
@@ -113,43 +119,46 @@ def print_tree(element, FILE, COLOR, REAL, indent=0):
         elif FILE:
             package = bf.get(item)
             if REAL:
-                pkgname = package.sources[0].name
+                pkg_name = package.sources[0].name
             else:
-                pkgname = package.name
+                pkg_name = package.name
             try:
-                realnam = str(package.sources[0].s3_key.split('/')[-1])
+                real_name = str(package.sources[0].s3_key.split('/')[-1])
             except:
-                printf("\nERROR: unable to get real name of package: ")
-                printf("%s/%s, continuing...\n\n", element.name, pkgname)
+                flush_print("ERROR: unable to get real name of package: ")
+                flush_print(f"{element.name}/{pkg_name}, continuing...")
                 continue
 
             realext = False
             for ext in extensions:
-                if realnam.lower().endswith(ext.lower()):
+                if real_name.lower().endswith(ext.lower()):
                     realext = ext
                     break
 
             if realext == False:
-                realext = realnam.rsplit(".",1)[-1]
+                realext = real_name.rsplit(".",1)[-1]
 
-            if pkgname[-len(realext):]==realext:
-                filename = pkgname
+            if pkg_name[-len(realext):]==realext:
+                filename = pkg_name
             else:
-                filename = pkgname.replace(realext,"")+"."+realext
+                filename = pkg_name.replace(realext,"")+"."+realext
 
             if COLOR:
-                printme = " "*(indent+4) + filename + colored(" (pkg)", "red")
+                print_me = " "*(indent+4) + filename + colored(" (pkg)", "red")
             else:
-                printme = " "*(indent+4) + filename + " (pkg)"
-            printf("%s\n", printme)
-###############################################################################
+                print_me = " "*(indent+4) + filename + " (pkg)"
+            flush_print(f"{print_me}")
+
+
 def collection_exists(ds,name):
     """ test if expected collection in path exists """
     for i in ds.items:
         if name == i.name: return True
+
     return False
-###############################################################################
-def locate_path(ds, path):
+
+
+def locate_path(ds, path, verbose=True):
     """ Return the object that represents where to
         start to print the tree """
     dirs = path.split('/')
@@ -160,72 +169,109 @@ def locate_path(ds, path):
         elif collection_exists(ds, dirs[i]):
             ds = ds.get_items_by_name(dirs[i])[0]
         else:
-            printf("Object, %s, does NOT exist.\n", dirs[i])
-            sys.exit()
+            if verbose:
+                flush_print(f"Object '{dirs[i]}' does NOT exist when locating the path")
+            return
+
     return ds
+
+
 ###############################################################################
-# program starts HERE
-FILE = False
-COLOR = True
-ALL = False
-PATH = False
-DATASET = False
-REAL = False
+#                            Main program
+###############################################################################
+if __name__ == "__main__":
+    usage_str = (
+        f"Usage of bftree version {__version__}:\n"
+        "------------------------------\n"
+        "bftree -d <dataset>\n"
+        "       --all (or -a): show all HPAP datasets\n"
+        "       --path (or -p) <path to start tree>: specify the path\n"
+        "       --data: show packages in output\n"
+        "       --realdata: show packages as uploaded names\n"
+        "       --nocolor: no colorful output\n"
+        "       --list (or -l): list datasets\n"
+        "       --version (or -v): print version number\n"
+        "       --help (or -h): usage text (this screen)\n"
+        "Note: '-d' and '--all' are mutually exclusive\n"
+    )
 
-if len(sys.argv) < 2:
-    printf("%s\n", syntax())
-    sys.exit()
+    FILE = False
+    COLOR = True
+    ALL = False
+    PATH = False
+    DATASET = False
+    REAL = False
 
-argv = sys.argv[1:]
+    if len(sys.argv) < 2:
+        flush_print(usage_str)
+        sys.exit(1)
 
-try:
-    opts, args = getopt.getopt(argv, "hld:p:",
-            ['realdata', 'all', 'nocolor', 'data'])
-except getopt.GetoptError:
-    printf("%s\n", syntax())
-    sys.exit()
+    argv = sys.argv[1:]
+    try:
+        opts, args = getopt.getopt(
+            argv,
+            "ad:hlp:v",
+            ['all', 'data', 'help', 'list', 'nocolor', 'path', 'realdata', 'version']
+        )
+    except getopt.GetoptError:
+        flush_print(usage_str)
+        sys.exit(1)
 
-dsets, dsdict = get_datasets()
+    dsets, ds_dict = get_datasets()
+    dset = None
 
-for opt, arg in opts:
-    if opt == '--data':
-        FILE=True
-    elif opt in '--all':
-        ALL = True
-    elif opt == '-p':
-        path = arg
-        PATH = True
-    elif opt == '--realdata':
-        REAL = True
-        FILE = True
-    elif opt == '--nocolor':
-        COLOR = False
-    elif opt == '-h':
-        printf("%s\n", syntax())
-        sys.exit()
-    elif opt in '-l':
-        for ds in dsets:
-            printf("%s\n",ds[0])
-        sys.exit()
-    elif opt in '-d':
-        DATASET = True
-        try:
-            dset = bf.get_dataset(dsdict[arg])
-        except:
-            printf("Dataset, %s, does NOT exist.\n", arg)
+    for opt, arg in opts:
+        if opt == '--version' or opt == '-v':
+            flush_print(__version__)
+            sys.exit()
+        elif opt == '--help' or opt == '-h':
+            flush_print(usage_str)
+            sys.exit()
+        elif opt == '--data':
+            FILE=True
+        elif opt == '--all' or opt == '-a':
+            ALL = True
+        elif opt == '--path' or opt == '-p':
+            path = arg
+            PATH = True
+        elif opt == '--realdata':
+            REAL = True
+            FILE = True
+        elif opt == '--nocolor':
+            COLOR = False
+        elif opt == '--list' or opt == '-l':
+            for ds in dsets:
+                flush_print(ds[0])
+            sys.exit()
+        elif opt == '-d':
+            DATASET = True
+            try:
+                dset = bf.get_dataset(ds_dict[arg])
+            except:
+                flush_print(f"Dataset {arg} does NOT exist")
+                sys.exit(1)
+        elif opt == '--version' or opt == '-v':
+            flush_print(__version__)
             sys.exit()
 
-if PATH and DATASET:
-    dset = locate_path(dset, path)
-    print_tree(dset, FILE, COLOR, REAL)
-elif ALL:
-    for ds in dsets:
-        if 'HPAP-' not in ds[0]: continue
-        dset = bf.get_dataset(ds[1])
-        dataset = dset
-        if PATH:
-            dset = locate_path(dset, path)
-            printf("\n%s:%s\n", dataset.name, path)
+    if PATH and DATASET:
+        dset = locate_path(dset, path)
+        if dset:
+            print_tree(dset, FILE, COLOR, REAL)
+    elif ALL:
+        for ds in dsets:
+            if 'HPAP-' not in ds[0]:
+                continue
+            dset = bf.get_dataset(ds[1])
+            dataset = dset
+            if PATH:
+                dset = locate_path(dset, path, verbose=False)
+                if dset:
+                    flush_print()
+                    flush_print(f"{dataset.name}: {path}")
+                    print_tree(dset, FILE, COLOR, REAL, verbose=False)
+    elif dset:
         print_tree(dset, FILE, COLOR, REAL)
-else:
-    print_tree(dset, FILE, COLOR, REAL)
+    else:
+        flush_print("ERROR: Incompatible command options\n")
+        flush_print(usage_str)
