@@ -9,7 +9,7 @@
 #
 #       OPTIONS:  see syntax() below
 #
-#  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
+#  REQUIREMENTS:  python2, pennsieve python library, pennsieve key
 #       UPDATES:  170911: Added CLI opt/arg processing
 #                 170915: Created create_paths()
 #                 170918: Created find()
@@ -32,13 +32,13 @@
 #       CREATED:  09/12/2017 18:00:00 EDT
 #      REVISION:  Tue Nov  6 15:07:23 EST 2018
 #===============================================================================
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 import os
 import sys
 import getopt
-# extensions unknown to Blackfynn
+# extensions unknown to Pennsieve
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
 ###############################################################################
 def syntax():
@@ -200,7 +200,7 @@ ALL = False
 FILE = False
 CASE = True
 PATH = None
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 
 if len(sys.argv) < 2:
     printf("%s\n", syntax())

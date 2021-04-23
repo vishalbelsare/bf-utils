@@ -9,7 +9,7 @@
 #
 #       OPTIONS:  see syntax() below
 #
-#  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
+#  REQUIREMENTS:  python2, pennsieve python library, pennsieve key
 #       UPDATES:  171018: added --nodata
 #                 171102: added ability to use short names for HPAP datasets
 #                         and uses short name on output
@@ -35,9 +35,9 @@
 #       CREATED:  Mon Oct  9 19:56:00 EDT 2017
 #      REVISION:  Tue Nov  6 15:07:23 EST 2018
 #===============================================================================
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 from shutil import rmtree
 import pandas as pd
 import sys
@@ -46,7 +46,7 @@ import os
 import time
 import re
 
-# extensions unknown to Blackfynn
+# extensions unknown to Pennsieve
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
 
 categories = [
@@ -277,7 +277,7 @@ def get_packages(pkgpaths, quick_refresh = False):
 def mirror(dspaths, locpaths, rootdir):
     """ ensure both dataset and local directory are equal """
     dspaths.sort(reverse=True)
-    # Remove Blackfynn :package: ending to match local paths
+    # Remove Pennsieve :package: ending to match local paths
     dspaths = [":".join(x.split(":",2)[:2]) for x in dspaths]
     locpaths.sort(reverse=True)
 
@@ -311,7 +311,7 @@ def extension_remover(file_name):
     return file_name
 ###############################################################################
 # program starts HERE
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 outdir = './'
 NODATA = MIRROR = EXCEPT = DATASET = CATEGORY = False
 REFRESH = True # default value

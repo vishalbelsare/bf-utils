@@ -15,7 +15,7 @@
 #                -f <file> (use file containing datasets to update)
 #                -l (list all datasets)
 #                -h (help)
-# REQUIREMENTS:  python2, blackfynn python library and license key
+# REQUIREMENTS:  python2, pennsieve python library and license key
 #      UPDATES:  171006: collection path can start with / or not
 #                171113: renames collections only
 #                180215: unified options
@@ -26,9 +26,9 @@
 #      CREATED:  Fri Oct  6 13:36:33 EDT 2017
 #     REVISION:  Thu Mar 22 15:10:46 EDT 2018
 #===============================================================================
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 import sys
 import getopt
 import os
@@ -125,7 +125,7 @@ def rename_object(dset, path, newname, DATA):
     return
 ###############################################################################
 # program starts HERE
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 ALL = False
 FILE = False
 DATASET = False

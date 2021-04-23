@@ -26,9 +26,9 @@
 #      CREATED:  10/02/2017 14:13:54 EDT
 #     REVISION:  Thu Feb 15 13:25:30 EST 2018
 #===============================================================================
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 import sys
 import getopt
 import os
@@ -120,7 +120,7 @@ def insert_collection(dset, collection, insert_where):
     return
 ###############################################################################
 # program starts HERE
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 ALL = False
 FILE = False
 DATASET = False

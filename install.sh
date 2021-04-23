@@ -5,7 +5,7 @@
 # 
 #         USAGE:  ./install.sh  [install_directory]
 # 
-#   DESCRIPTION:  Install blackfynn utilities
+#   DESCRIPTION:  Install pennsieve utilities
 # 
 #       OPTIONS:  ---
 #  REQUIREMENTS:  ---
@@ -105,7 +105,7 @@ fi
 #
 #  Copy distro programs to INSTDIR
 #
-echo "Installing blackfynn utilities into $INSTDIR ..."
+echo "Installing pennsieve utilities into $INSTDIR ..."
 for i in bf*.py bfdu.sh
 do
     F=`echo $i | cut -f1 -d.`

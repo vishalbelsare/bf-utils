@@ -14,7 +14,7 @@
 #                 -D <destination path> move source here
 #                 -l  (list all available datasets)
 #                 -h  (show help)
-#  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
+#  REQUIREMENTS:  python2, pennsieve python library, pennsieve key
 #       UPDATES:  180215: Added -f option 
 #        AUTHOR:  Pete Schmitt (discovery), pschmitt@upenn.edu
 #       COMPANY:  University of Pennsylvania
@@ -23,13 +23,13 @@
 #      REVISION:  Thu Feb 15 11:49:51 EST 2018
 #===============================================================================
 
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 import sys
 import getopt
 import os
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 ###############################################################################
 def syntax():
     SYNTAX =   "\nbfmove -d <dataset> \n"
