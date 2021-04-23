@@ -8,7 +8,7 @@
 #   DESCRIPTION:  
 # 
 #       OPTIONS:  see options in syntax() function below
-#  REQUIREMENTS:  python2, blackfynn python library, blackfynn key
+#  REQUIREMENTS:  python2, pennsieve python library, pennsieve key
 #       UPDATES:  170911: Added CLI opt/arg processing
 #                 171108: Added short names for -d option
 #                 180215: unified options
@@ -18,9 +18,9 @@
 #       CREATED:  09/06/2017 16:54:33 EDT
 #      REVISION:  Thu Feb 15 14:31:03 EST 2018
 #===============================================================================
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 import sys
 import getopt
 ###############################################################################
@@ -76,7 +76,7 @@ def create_duplicate(element, newdset, indent=0):
             create_duplicate(item, c, indent=indent+4)
 ###############################################################################
 # program starts HERE
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 
 if len(sys.argv) < 2:
     printf("%s\n", syntax())

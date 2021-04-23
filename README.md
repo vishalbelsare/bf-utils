@@ -1,33 +1,47 @@
 # bf-utils
-Blackfynn Utilities for dealing with the Datasets from the Linux command line
+Pennsieve Utilities for dealing with the Datasets from the Linux command line
 
 ## Prerequisites
 ```
 Python 2.7.10+ and packages
-    blackfynn
     datetime
     getopt
     os
     requests
     shutil
     sys
-    termcolor
+    numpy>=1.15.1
+    termcolor>=1.1.0
     time
     urllib3
 
 Python 3.7 and packages
-    blackfynn
-    pandas
+    [pennsieve client](https://github.com/Pennsieve/pennsieve-python)
+    [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
 ```
 
 ## Note:
 1. Each command comes with a -h option for help and a -l option to list all datasets available to the user
-2. Package installation:
-     * [Blackfynn client](https://developer.blackfynn.io/python/latest/quickstart.html#installation)
-     * [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
-3. We are in the process of switching to Python3.7. The following scripts work for 3.7.
+2. We are in the process of switching to Python3.7. The following scripts work for 3.7.
      * bfsync.py
+3. Legacy [data upload](/upload_legacy) instructions
 
+## Data download for HPAP groups 
+**NOTE: we encourage HPAP groups to use [FTP downloading](https://hpap.pmacs.upenn.edu/explore/ftp) too.**
+1. Install Python 3.7 or above (https://www.python.org/downloads/)
+2. Install Python packages
+     - Pandas https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html
+     - Pennsieve client 
+         * After [pennsieve installation](https://docs.pennsieve.io/docs/the-pennsieve-agent), set [configuration](https://docs.pennsieve.io/docs/configuring-the-client-credentials)
+         * API token: [To Be Set]
+         * API secret: [To Be Set]
+3. Download data
+     - Command: python bfsync.py [options, or -h for help]
+     - Data categories: "Clinical data", "B cell receptor repertoire", "Flow panels for B cells", "Flow cytometry - Immune lineage", "Histology", "CyTOF", "ATACseq", "mRNAseq", "Sequencing data for sorted cells/Sort data", "WGBS", "Single-cell RNAseq", "Calcium imaging", "Patch-Clamp", "Oxygen consumption", "Morphology and viability", "Perifusions", "Imaging mass cytometry", "ATAQseq", "Tetramer Ag specific studies by FACS".
+     - For example, to download scRNAseq data for donor HPAP-008, the command is:     
+         `python bfsync.py -d "HPAP-008" -c "Single-cell RNAseq" `
+
+## Scripts
 ### bfcompare.py
 bfcompare shows the differences between two datasets or a dataset and a local directory that was created with bfsync.
 ```
@@ -99,7 +113,7 @@ bfmeta -d <dataset>
        -k <metadata key>
        -v <metadata value>
        -m <metadata file of key:value pairs> (-k -v ignored)
-       -c <category> (default = Blackfynn)
+       -c <category> (default = Pennsieve)
        -p <dataset path> (path to collection required)
        -t <data type> (integer, string, date, double)
        --remove (remove metadata instead of adding metadata)

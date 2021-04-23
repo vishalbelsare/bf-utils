@@ -9,7 +9,7 @@
 #
 #       OPTIONS:  see usage below
 #
-#  REQUIREMENTS:  Python 3.x, blackfynn python library, blackfynn key
+#  REQUIREMENTS:  Python 3.x, pennsieve python library, pennsieve key
 #       UPDATES:  170911: Added CLI opt/arg processing
 #                 170922: Added -f option to show files
 #                 171009: Check for existence of dataset
@@ -41,16 +41,16 @@ import getopt
 import sys
 from datetime import datetime
 
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 from termcolor import colored
 
 __version__ = "0.6.2"
 
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 
-# extensions unknown to Blackfynn
+# extensions unknown to Pennsieve
 extensions = ['ome.tiff', 'fastq.gz', 'bigWig', 'bw', 'metadata']
 
 

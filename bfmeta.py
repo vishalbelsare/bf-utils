@@ -8,7 +8,7 @@
 #  DESCRIPTION: Insert metadata into base object of given path  
 #
 #      OPTIONS:  see options in syntax() function
-# REQUIREMENTS:  python2, blackfynn library and license
+# REQUIREMENTS:  python2, pennsieve library and license
 #      UPDATES:  171012: added a show option
 #                171016: added a remove option
 #                171023: added a type and category options
@@ -22,9 +22,9 @@
 #      CREATED:  Fri Oct 13 11:06:25 EDT 2017
 #     REVISION:  Thu Feb 15 13:49:24 EST 2018
 #===============================================================================
-from blackfynn import Blackfynn
-from blackfynn.models import BaseCollection
-from blackfynn.models import Collection
+from pennsieve import Pennsieve
+from pennsieve.models import BaseCollection
+from pennsieve.models import Collection
 import sys
 import getopt
 import os
@@ -43,7 +43,7 @@ def syntax():
     SYNTAX += "       -k <metadata key>\n"
     SYNTAX += "       -v <metadata value> \n"
     SYNTAX += "       -m <metadata file of key:value pairs> (-k -v ignored) \n"
-    SYNTAX += "       -c <category> (default = Blackfynn)\n"
+    SYNTAX += "       -c <category> (default = Pennsieve)\n"
     SYNTAX += "       -p <dataset path> (path to collection required)\n"
     SYNTAX += "       -t <data type> (integer, string, date, double)\n"
     SYNTAX += "       --remove (remove metadata instead of adding metadata)\n"
@@ -175,10 +175,10 @@ def add_remove_metadata(dset, mdlines, meta_path, CATEGORY, ADD, TYPE):
             printf("metadata with key, %s, removed from %s.\n", key, meta_path)
 ###############################################################################
 # program starts HERE
-bf = Blackfynn()  # use 'default' profile
+bf = Pennsieve()  # use 'default' profile
 ALL = False
 ADD=True
-CATEGORY = 'Blackfynn'  # default category
+CATEGORY = 'Pennsieve'  # default category
 DATASET = False
 FILE = False
 KEY = False
