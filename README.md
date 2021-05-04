@@ -26,11 +26,17 @@ Python 3.7 and packages
      * bfsync.py
 	 * bftree.py
 3. Legacy [data upload](/upload_legacy) instructions
-4. To install these scripts, run `install.sh <installation_dir>`.
-If `<installation_dir>` is not specified, they will be installed in `$HOME/bin`.
-Please also make sure that `<installation_dir>` is in your shell's `$PATH`. For example,
-If you are using bash, you may need to add this line in your `.bashrc`:
+4. To install these scripts, run this command:
+
+   ```shell
+   install.sh <installation_dir>
    ```
+
+   If `<installation_dir>` is not specified, they will be installed in `$HOME/bin`.
+   Please also make sure that `<installation_dir>` is in your shell's `$PATH`.
+   For example, If you are using bash, you may need to add this line in your `.bashrc` file:
+
+   ```shell
    export PATH=<installation_dir>:$PATH
    ```
 
