@@ -24,21 +24,29 @@ Python 3.7 and packages
 1. Each command comes with a -h option for help and a -l option to list all datasets available to the user
 2. We are in the process of switching to Python3.7. The following scripts work for 3.7.
      * bfsync.py
+	 * bftree.py
 3. Legacy [data upload](/upload_legacy) instructions
+4. To install these scripts, run `install.sh <installation_dir>`.
+If `<installation_dir>` is not specified, they will be installed in `$HOME/bin`.
+Please also make sure that `<installation_dir>` is in your shell's `$PATH`. For example,
+If you are using bash, you may need to add this line in your `.bashrc`:
+   ```
+   export PATH=<installation_dir>:$PATH
+   ```
 
-## Data download for HPAP groups 
+## Data download for HPAP groups
 **NOTE: we encourage HPAP groups to use [FTP downloading](https://hpap.pmacs.upenn.edu/explore/ftp) too.**
 1. Install Python 3.7 or above (https://www.python.org/downloads/)
 2. Install Python packages
      - Pandas https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html
-     - Pennsieve client 
+     - Pennsieve client
          * After [pennsieve installation](https://docs.pennsieve.io/docs/the-pennsieve-agent), set [configuration](https://docs.pennsieve.io/docs/configuring-the-client-credentials)
          * API token: [To Be Set]
          * API secret: [To Be Set]
 3. Download data
      - Command: python bfsync.py [options, or -h for help]
      - Data categories: "Clinical data", "B cell receptor repertoire", "Flow panels for B cells", "Flow cytometry - Immune lineage", "Histology", "CyTOF", "ATACseq", "mRNAseq", "Sequencing data for sorted cells/Sort data", "WGBS", "Single-cell RNAseq", "Calcium imaging", "Patch-Clamp", "Oxygen consumption", "Morphology and viability", "Perifusions", "Imaging mass cytometry", "ATAQseq", "Tetramer Ag specific studies by FACS".
-     - For example, to download scRNAseq data for donor HPAP-008, the command is:     
+     - For example, to download scRNAseq data for donor HPAP-008, the command is:
          `python bfsync.py -d "HPAP-008" -c "Single-cell RNAseq" `
 
 ## Scripts
@@ -58,7 +66,7 @@ bfcompare -d <dataset>
 Note: -c, -p and --all are mutually exclusive.
 ```
 ### bfdelete.py
-bfdelete removes directories (collections) from a dataset 
+bfdelete removes directories (collections) from a dataset
 ```
 bfdelete -d <dataset>
          --all (apply to ALL HPAP datasets)
@@ -166,7 +174,7 @@ bfsync -d <dataset>
        --mirror (remove local data/directories to mirror dataset)
        --refresh (send a signal to hpap data website to refresh. this is the default)
        --norefresh (do not send signal to hpap data website to refresh)
-       
+
        -h (help)
        -l (list datasets)
 ```
@@ -186,4 +194,3 @@ bftree -d <dataset>
 
 Note: -d and --all are mutually exclusive
 ```
-
