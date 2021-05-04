@@ -3,7 +3,7 @@
 #
 #          FILE:  install.sh
 #
-#         USAGE:  ./install.sh  [install_directory]
+#         USAGE:  ./install.sh  <installation_dir>
 #
 #   DESCRIPTION:  Install Pennsieve utilities
 #
