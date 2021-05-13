@@ -2,23 +2,21 @@
 Pennsieve Utilities for dealing with the Datasets from the Linux command line
 
 ## Prerequisites
-```
-Python 2.7.10+ and packages
-    datetime
-    getopt
-    os
-    requests
-    shutil
-    sys
-    numpy>=1.15.1
-    termcolor>=1.1.0
-    time
-    urllib3
+### Python 2.7.10+ and packages
+- datetime
+- getopt
+- os
+- requests
+- shutil
+- sys
+- numpy>=1.15.1
+- termcolor>=1.1.0
+- time
+- urllib3
 
-Python 3.7 and packages
-    [pennsieve client](https://github.com/Pennsieve/pennsieve-python)
-    [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
-```
+#### Python 3.7 and packages
+- [pennsieve client](https://github.com/Pennsieve/pennsieve-python)
+- [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
 
 ## Note:
 1. Each command comes with a -h option for help and a -l option to list all datasets available to the user
