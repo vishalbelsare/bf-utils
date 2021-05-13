@@ -14,11 +14,12 @@ Pennsieve Utilities for dealing with the Datasets from the Linux command line
 - time
 - urllib3
 
-#### Python 3.7 and packages
+### Python 3.7 and packages
 - [pennsieve client](https://github.com/Pennsieve/pennsieve-python)
 - [pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
+- termcolor>=1.1.0
 
-## Note:
+## Notes:
 1. Each command comes with a -h option for help and a -l option to list all datasets available to the user
 2. We are in the process of switching to Python3.7. The following scripts work for 3.7.
      * bfsync.py
