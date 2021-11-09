@@ -199,3 +199,15 @@ bftree -d <dataset>
 
 Note: -d and --all are mutually exclusive
 ```
+
+### psv-upload.bash
+Upload local data to a dataset on Pennsieve server
+```
+psv-upload.bash [local_data] [HPAP-###] [optional_destination]
+
+Example #1: upload './my data' to the root folder of HPAP-001:
+  psv-upload.bash './my data' HPAP-001
+
+Example #2: upload './my data' to 'Histology/Bone Marrow' folder of HPAP-001:
+  psv-upload.bash './my data' HPAP-001 'Histology/Bone Marrow'
+```
