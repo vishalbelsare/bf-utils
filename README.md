@@ -42,22 +42,22 @@ export PATH=<installation_dir>:$PATH
    data categories:
      * `Clinical data`
      * `B cell receptor repertoire`
-	 * `Flow panels for B cells`
-	 * `Flow cytometry - Immune lineage`
+	 - `Flow panels for B cells`
+	 - `Flow cytometry - Immune lineage`
      * `Histology`
-	 * `CyTOF`
-	 * `ATACseq`
-	 * `mRNAseq`
+	 - `CyTOF`
+	 - `ATACseq`
+	 - `mRNAseq`
      * `Sequencing data for sorted cells/Sort data`
-	 * `WGBS`
+	 - `WGBS`
      * `Single-cell RNAseq`
-	 * `Calcium imaging`
-	 * `Patch-Clamp`
+	 - `Calcium imaging`
+	 - `Patch-Clamp`
      * `Oxygen consumption`
-	 * `Morphology and viability`
-	 * `Perifusions`
+	 - `Morphology and viability`
+	 - `Perifusions`
      * `Imaging mass cytometry`
-	 * `ATAQseq`
+	 - `ATAQseq`
      * `Tetramer Ag specific studies by FACS`
 
    For example, to download `scRNAseq` data for donor `HPAP-008`, use:
