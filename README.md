@@ -40,25 +40,25 @@ export PATH=<installation_dir>:$PATH
 
 4. Download data: use `py-sync.py` command, which supports the following
    data categories:
-     * `Clinical data`
-     * `B cell receptor repertoire`
-	 - `Flow panels for B cells`
-	 - `Flow cytometry - Immune lineage`
-     * `Histology`
-	 - `CyTOF`
-	 - `ATACseq`
-	 - `mRNAseq`
-     * `Sequencing data for sorted cells/Sort data`
-	 - `WGBS`
-     * `Single-cell RNAseq`
-	 - `Calcium imaging`
-	 - `Patch-Clamp`
-     * `Oxygen consumption`
-	 - `Morphology and viability`
-	 - `Perifusions`
-     * `Imaging mass cytometry`
-	 - `ATAQseq`
-     * `Tetramer Ag specific studies by FACS`
+   * `Clinical data`
+   * `B cell receptor repertoire`
+       - `Flow panels for B cells`
+       - `Flow cytometry - Immune lineage`
+   * `Histology`
+       - `CyTOF`
+       - `ATACseq`
+       - `mRNAseq`
+   * `Sequencing data for sorted cells/Sort data`
+       - `WGBS`
+   * `Single-cell RNAseq`
+       - `Calcium imaging`
+       - `Patch-Clamp`
+   * `Oxygen consumption`
+       - `Morphology and viability`
+       - `Perifusions`
+   * `Imaging mass cytometry`
+       - `ATAQseq`
+   * `Tetramer Ag specific studies by FACS`
 
    For example, to download `scRNAseq` data for donor `HPAP-008`, use:
    ```
