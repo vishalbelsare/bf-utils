@@ -57,7 +57,6 @@ export PATH=<installation_dir>:$PATH
        - `Morphology and viability`
        - `Perifusions`
    * `Imaging mass cytometry`
-       - `ATAQseq`
    * `Tetramer Ag specific studies by FACS`
 
    For example, to download `scRNAseq` data for donor `HPAP-008`, use:
