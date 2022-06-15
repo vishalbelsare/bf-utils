@@ -1,14 +1,6 @@
-dev/
-docs/
-notebooks/
-old/
-results/
-screenshots/
+# Ignored files
+venv/
+*~
 .ipynb_checkpoints/
-*.ipynb
 .DS_Store
-.Trashes
-.Spotlight-V100
-.dropbox.attr
-.*.swp
-test.py
+__pycache__/

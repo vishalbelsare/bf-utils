@@ -1,15 +1,7 @@
-#!/bin/bash
-#===============================================================================
+#!/usr/bin/env bash
 #
-#          FILE:  install.sh
-#
-#         USAGE:  ./install.sh  <installation_dir>
-#
-#   DESCRIPTION:  Install Pennsieve utilities
-#
-#        AUTHOR:  Dongbo Hu
-#       CREATED:  05/04/2021
-#===============================================================================
+# This script installs `psv-*` scripts in this repository to a specified
+# installation directory (default: "$HOME/bin").
 
 # Get absolute path of the source directory
 abs_curr_file=$(readlink -e "$0")
@@ -20,7 +12,8 @@ if  [ "$#" -eq 0 ]; then
 elif [ "$#" -eq 1 ] && [ "$1" != "-h" ]; then
     INST_DIR=$1
 else
-    echo "Usage: ${abs_curr_file} [installation_dir] (default: $HOME/bin)"
+    echo "Usage: ${abs_curr_file} [installation_dir]"
+    echo "Note: default installation_dir: $HOME/bin"
     exit 0
 fi
 
@@ -30,15 +23,17 @@ mkdir -pv ${INST_DIR}
 # Go to the current script's directory
 cd ${abs_curr_dir}
 
-# Create soft links in INST_DIR
-for f in bf*.py bfdu.sh; do
-    echo "Installing $f into ${INST_DIR} ..."
-    if [ "$f" = "bfdu.sh" ]; then
-	extension=".sh"
-    else
-	extension=".py"
-    fi
+# Install `psv-*.py` and `psv-du.sh`
+for f in psv-*.py psv-*.bash; do
+    echo "Installing $f into ${INST_DIR}"
 
+    # Get file extension (with the leading '.'), see the discussion at:
+    # https://stackoverflow.com/questions/965053
+    extension=".${f##*.}"
+
+    # Get basename (w/o extension)
     dest_name=$(basename $f $extension)
+
+    # Force create symlink in ${INST_DIR}
     ln -sf ${abs_curr_dir}/$f ${INST_DIR}/${dest_name}
 done
