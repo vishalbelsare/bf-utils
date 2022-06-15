@@ -12,7 +12,7 @@ if  [ "$#" -eq 0 ]; then
 elif [ "$#" -eq 1 ] && [ "$1" != "-h" ]; then
     INST_DIR=$1
 else
-    echo "Usage: ${abs_curr_file} [installation_dir]"
+    echo "Usage: install.bash [installation_dir]"
     echo "Note: default installation_dir: $HOME/bin"
     exit 0
 fi

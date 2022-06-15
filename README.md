@@ -17,7 +17,7 @@ Linux command line.
 To install these scripts, run the following command:
 
 ```shell
-./install.sh <installation_dir>
+./install.bash <installation_dir>
 ```
 
 If `<installation_dir>` is not specified, they will be installed in `$HOME/bin`.

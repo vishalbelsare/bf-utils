@@ -1,11 +1,13 @@
 #!/bin/bash
 #
-# A wrapper of "pennsieve upload" command to upload local data to Pennsieve server.
+# A wrapper of "pennsieve upload" command to upload local data to Pennsieve
+# server.
 #
 # IMPORTANT:
 # ----------
 # DO NOT USE "bash -e" or "set -e", because some functions in this script may
-# return non-zero values, which would terminate the script too early.
+# return non-zero values, which would terminate the script too early when `-e`
+# is set.
 
 # Function that prints the usage:
 function print_help() {
