@@ -254,4 +254,12 @@ Example #1: upload './my data' to the root folder of HPAP-001:
 
 Example #2: upload './my data' to 'Histology/Bone Marrow' folder of HPAP-001:
   psv-upload.bash './my data' HPAP-001 'Histology/Bone Marrow'
+
+Example #3: upload each file in './my data' to the root folder of HPAP-001
+            WITHOUT creating 'my_data' folder on Pennsieve server
+  psv-upload.bash './my data' HPAP-001 --no-parent
+
+Example #4: upload each file in './my data/' to 'Histology/Bone Marrow' folder
+            of HPAP-001 WITHOUT creating 'my_data' folder on Pennsieve server
+  psv-upload.bash './my data' HPAP-001 'Histology/Bone Marrow' --no-parent
 ```
