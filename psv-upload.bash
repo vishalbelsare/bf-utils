@@ -12,27 +12,26 @@
 # Function that prints the usage:
 function print_help() {
     echo "==============================================================================="
-    echo "COMMAND USAGE:"
-    echo "$0 <local_data> <HPAP-###> [optional_destination] [--no-parent]"
+    echo "USAGE: $0 <local_data> <HPAP-###> [optional_destination]"
     echo "==============================================================================="
 
-    echo "* Example #1: upload './my data' to the root folder of HPAP-001:"
-    echo "    $0 './my data' HPAP-001"
+    echo "* Example #1: upload a single data file to the root of HPAP-001:"
+    echo "    $0 '<path>/my_data_file' HPAP-001"
     echo
 
-    echo "* Example #2: upload './my data' to 'Histology/Bone Marrow' folder of HPAP-001:"
-    echo "    $0 './my data' HPAP-001 'Histology/Bone Marrow'"
+    echo "* Example #2: upload everything inside a data directory to the root of HPAP-001:"
+    echo "    $0 '<path>/my_data_dir' HPAP-001"
+    echo "  Note that '<path>/my_data_dir' will NOT be created on Pennsieve server."
     echo
 
-    echo "* Example #3: upload each file in './my data' to the root folder of HPAP-001"
-    echo "              WITHOUT creating 'my_data' folder on Pennsieve server"
-    echo "    $0 './my data' HPAP-001 --no-parent"
+    echo "* Example #3: upload a single data file to 'Histology/Bone Marrow' folder of HPAP-001:"
+    echo "    $0 '<path>/my_data_file' HPAP-001 'Histology/Bone Marrow'"
     echo
 
-    echo "* Example #4: upload each file in './my data/' to 'Histology/Bone Marrow' folder"
-    echo "              of HPAP-001 WITHOUT creating 'my_data' folder on Pennsieve server"
-    echo "    $0 './my data' HPAP-001 'Histology/Bone Marrow' --no-parent"
-    echo
+    echo "* Example #4: upload everything inside a data directory to 'Histology/Bone Marrow'"
+    echo "              folder of HPAP-001 on Pennsieve server"
+    echo "    $0 '<path>/my_data_dir' HPAP-001 'Histology/Bone Marrow'"
+    echo "  Note that '<path>/my_data_dir' will NOT be created on Pennsieve server."
 }
 
 
@@ -98,34 +97,55 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
+# Ensure that `pennsieve-aggent` version 1.x is being used
+pennsieve -h 2>&1 | grep manifest > /dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+    echo "Error: 'pennsieve-agent' version is too old"
+    echo "Please upgrade it to the latest version at:"
+    echo "https://github.com/Pennsieve/pennsieve-agent/releases/"
+    exit 1
+fi
+
 # Ensure that the numebr of arguments is correct
-if [[ "$#" -lt 2 || "$#" -gt 4 ]]; then
+if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
     print_help
     exit 1
 fi
 
-# If there are four arguments, the last one must be "--no-parent"
-if [[ "$#" -eq 4 && "$4" != "--no-parent" ]]; then
-    print_help
+# Ensure that `realpath` command is available
+which realpath > /dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+    echo "'realpath' command not found"
     exit 1
 fi
 
 # Ensure that "input_local_path" exists in local filesystem:
-input_local_path="$1"
+input_local_path=$(realpath $1)
 if [[ ! -e "${input_local_path}" ]]; then
-    echo "ERROR: '$1' not exist on local computer"
+    echo "Error: '$1' not found on local computer"
     exit 1
 fi
 
-local_base=$(basename "$input_local_path")  # basename of `input_local_path`
+# Ensure that pennsieve-agent is run by current user as a daemon
+ps -ef | grep "^$USER .* pennsieve agent start$" > /dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+    echo "Start 'pennsieve agent' as a daemon"
 
-# Get the full name of input dataset
+    pennsieve agent > /dev/null 2>&1  # start pennsieve agent as a daemon
+    if [[ $? -ne 0 ]]; then
+	echo "Error: 'pennsieve agent' command failed."
+	echo "Please check '~/.pennsieve/config.ini' to make sure it's correct."
+	exit 2
+    fi
+fi
+
+# Get input dataset's internal name
 input_psv_dataset="$2"
-dataset_line=$(pennsieve datasets | grep -w "${input_psv_dataset}")
+dataset_line=$(pennsieve dataset find "${input_psv_dataset}" | grep -w "${input_psv_dataset}")
 
 # Exit if input dataset name is not found in Pennsieve server
 if [[ "$?" -ne 0 ]]; then
-    echo "Error: dataset '${input_psv_dataset}' not found in Pennsieve server"
+    echo "Error: dataset '${input_psv_dataset}' not found on Pennsieve server"
     exit 1
 fi
 
@@ -133,138 +153,28 @@ raw_dataset_name=$(echo ${dataset_line} | cut -d'|' -f3)
 dataset_name=$(trim_str ${raw_dataset_name})
 
 # Set current working dataset on Pennsieve server
-pennsieve use "${dataset_name}" > /dev/null
+pennsieve dataset use "${dataset_name}" > /dev/null
 
-# Base command
-upload_cmd="pennsieve upload -f"
-
-# ---------------------------------------------------------------------
-# If "optional_destination" is NOT specified, upload local data to
-# the root of dataset.
-# ---------------------------------------------------------------------
-if [[ "$#" -eq 2 ]]; then
-    # Ensure that `local_base` does NOT exist in current dataset's root yet:
-    lines=$(pennsieve ls | awk 'NR > 8 {print $0}' | cut -d'|' -f2)
-    line_exists "${local_base}" "$lines"
-    if [[ "$?" -eq 1 ]]; then
-	echo "ERROR: '${local_base}' already exists in root of '${input_psv_dataset}'"
-	exit 1
-    fi
-
-    if [[ -d "${input_local_path}" ]]; then
-	upload_cmd="${upload_cmd} -r"
-    fi
-
-    # Upload data now. Note: DO NOT use "${upload_cmd}", which would execute
-    # the whole string as ONE command!
-    ${upload_cmd} --dataset "${dataset_name}" "${input_local_path}"
-    exit 0
-fi
-
-# ---------------------------------------------------------------------
-# If "optional_destination" is NOT specified, and the 3rd argument is
-# "--no-parent", upload every file in local data to the root of dataset.
-# ---------------------------------------------------------------------
-if [[ "$#" -eq 3 && "$3" == "--no-parent" ]]; then
-    # Ensure that ${input_local_path} is a directory
-    if ! [[ -d "${input_local_path}" ]]; then
-	echo "ERROR: '${input_local_path}' is not a directory"
-	exit 1
-    fi
-
-    for f in ${input_local_path}/*; do
-	extra_option=''
-	if [[ -d "$f" ]]; then
-	    extra_option='-r'
-	fi
-
-	${upload_cmd} ${extra_option} --dataset "${dataset_name}" "$f"
-    done
-
-    exit 0
-fi
-
-# ---------------------------------------------------------------------
-# If "optional_destination" is specified, check each sub-folder to get
-# its collection ID, until the deepest level is reached.
-# ---------------------------------------------------------------------
-input_psv_dest="$3"
-
-# Split input destination into an array
-# See: https://stackoverflow.com/questions/10586153/
-IFS='/' read -ra folders <<< "${input_psv_dest}"
-
-# Remove empty entries in the array.
-# See: https://stackoverflow.com/questions/16860877/
-# folders=("${folders[@]/''}")  # not work on Bash 3.2.57 (macOS)
-
-# Iterate each level of the path to get collection ID of the deepest sub-folder
-current_folder_id=""
-current_path=""
-for i in "${folders[@]}"; do
-    # Skip empty entry
-    if [[ -z "$i" ]]; then
-	continue
-    fi
-
-    if [[ -z "${current_folder_id}" ]]; then  # first level of the path
-	toc_lines=$(pennsieve ls | awk 'NR > 8 {print $0}')
-	current_path="$i"
-    else                                      # paths after the first level
-	toc_lines=$(pennsieve ls --collection "${current_folder_id}" | awk 'NR > 8 {print $0}')
-	current_path="${current_path}/$i"
-    fi
-
-    current_folder_id=$(get_psv_id "$i" "${toc_lines}")
-
-    # Exit if sub-folder is not found or multiple matches are found in Pennsieve server
-    if [[ "$?" -eq 1 ]]; then
-	echo "ERROR: '${current_path}' folder not found in Pennsieve server"
-	exit 1
-    elif [[ "$?" -eq 2 ]]; then
-	echo "ERROR: multiple '${current_path}' folders found in Pennsieve server"
-	exit 1
-    fi
-done
-
-# ---------------------------------------------------------------------
-# If three arguments are found and the last one is not "--no-parent",
-# then upload the whole `input_local_path` to the destination.
-# ---------------------------------------------------------------------
+# Create new manifest
+create_manifest_cmd="pennsieve manifest create ${input_local_path}"
 if [[ "$#" -eq 3 ]]; then
-    # Ensure that `local_base` does NOT exist in `current_folder_id` yet:
-    lines=$(pennsieve ls --collection "${current_folder_id}" | awk 'NR > 8 {print $0}' | cut -d'|' -f2)
-    line_exists "${local_base}" "$lines"
-    if [[ "$?" -eq 1 ]]; then
-	echo "ERROR: '${local_base}' already exists in '${input_psv_dest}' folder"
-	exit 1
-    fi
-
-    # Upload data now.
-    extra_option=''
-    if [[ -d "${input_local_path}" ]]; then
-	extra_option='-r'
-    fi
-
-    ${upload_cmd} ${extra_option} --folder "${current_folder_id}" "${input_local_path}"
-    exit 0
+    create_manifest_cmd="${create_manifest_cmd} -t $3"
 fi
 
-# ---------------------------------------------------------------------
-# If four arguments are found and the last one is "--no-parent", then
-# upload each file in `input_local_path` to the destination.
-# ---------------------------------------------------------------------
-# Ensure that ${input_local_path} is a directory
-if ! [[ -d "${input_local_path}" ]]; then
-    echo "ERROR: '${input_local_path}' is not a directory"
-    exit 1
+mf_id=$(${create_manifest_cmd} | grep "ID:" | awk '{print $3}')
+if [[ "$?" -ne 0 ]]; then
+    echo "Error: failed to create manifest"
+    exit 4
 fi
 
-for f in ${input_local_path}/*; do
-    extra_option=''
-    if [[ -d "$f" ]]; then
-	extra_option='-r'
-    fi
+# Upload the manifest
+pennsieve upload manifest ${mf_id} > /dev/null 2>&1
+if [[ "$?" -ne 0 ]]; then
+    echo "Error: failed to submit upload job (manifest ID: ${mf_id})"
+    exit 5
+fi
 
-    ${upload_cmd} ${extra_option} --folder "${current_folder_id}" --dataset "${dataset_name}" "$f"
-done
+echo "Data uploading job #${mf_id} has been submitted successfully."
+echo "  * use 'pennsieve manifest list ${mf_id}' to check the files"
+echo "  * use 'pennsieve agent subscribe' to see the realtime progress"
+echo
