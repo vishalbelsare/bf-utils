@@ -11,7 +11,7 @@ DIR_SIZE_IN_KB=4
 
 # One and only one argument is required
 if [[ $# -ne 1 || $1 == '-h' ]] ; then
-    echo "Usage: psv-du.sh <directory>"
+    echo "Usage: psv-du.bash <directory>"
     exit 1
 fi
 
