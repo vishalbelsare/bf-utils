@@ -91,14 +91,14 @@ function get_psv_id() {
 
 
 # Ensure that "pennsieve" command is available
-which pennsieve > /dev/null
+which pennsieve &> /dev/null
 if [[ $? -ne 0 ]]; then
     echo "'pennsieve' command not found"
     exit 1
 fi
 
 # Ensure that `pennsieve-aggent` version 1.x is being used
-pennsieve -h 2>&1 | grep manifest > /dev/null 2>&1
+pennsieve -h 2>&1 | grep manifest &> /dev/null
 if [[ $? -ne 0 ]]; then
     echo "Error: 'pennsieve-agent' version is too old"
     echo "Please upgrade it to the latest version at:"
@@ -113,9 +113,9 @@ if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
 fi
 
 # Ensure that `realpath` command is available
-which realpath > /dev/null 2>&1
+which realpath &> /dev/null
 if [[ $? -ne 0 ]]; then
-    echo "'realpath' command not found"
+    echo "'realpath' command not available, please install it"
     exit 1
 fi
 
@@ -127,11 +127,10 @@ if [[ ! -e "${input_local_path}" ]]; then
 fi
 
 # Ensure that pennsieve-agent is run by current user as a daemon
-ps -ef | grep "^$USER .* pennsieve agent start$" > /dev/null 2>&1
+ps -ef | grep "^$USER .* pennsieve agent start$" &> /dev/null
 if [[ $? -ne 0 ]]; then
     echo "Start 'pennsieve agent' as a daemon"
-
-    pennsieve agent > /dev/null 2>&1  # start pennsieve agent as a daemon
+    pennsieve agent  &> /dev/null # start the agent as a daemon
     if [[ $? -ne 0 ]]; then
 	echo "Error: 'pennsieve agent' command failed."
 	echo "Please check '~/.pennsieve/config.ini' to make sure it's correct."
@@ -161,20 +160,25 @@ if [[ "$#" -eq 3 ]]; then
     create_manifest_cmd="${create_manifest_cmd} -t $3"
 fi
 
-mf_id=$(${create_manifest_cmd} | grep "ID:" | awk '{print $3}')
-if [[ "$?" -ne 0 ]]; then
+# Create manifest. If the output string includes "failed", manifest is not
+# created successfully.
+mf_status=$(${create_manifest_cmd})
+mf_id=$(echo ${mf_status} | awk '{print $3}')
+if (echo ${mf_status} | grep "failed" &> /dev/null); then
     echo "Error: failed to create manifest"
+    pennsieve manifest delete ${mf_id} &> /dev/null
     exit 4
 fi
 
 # Upload the manifest
-pennsieve upload manifest ${mf_id} > /dev/null 2>&1
+pennsieve upload manifest ${mf_id} &> /dev/null
 if [[ "$?" -ne 0 ]]; then
     echo "Error: failed to submit upload job (manifest ID: ${mf_id})"
     exit 5
 fi
 
-echo "Data uploading job #${mf_id} has been submitted successfully."
-echo "  * use 'pennsieve manifest list ${mf_id}' to check the files"
-echo "  * use 'pennsieve agent subscribe' to see the realtime progress"
 echo
+echo "Data uploading job #${mf_id} has been submitted successfully."
+echo "  * use \"pennsieve agent subscribe\" command to see the realtime progress"
+echo "  * use \"pennsieve manifest list ${mf_id}\" command to check the job"
+echo "  * use \"pennsieve manifest delete ${mf_id}\" command to delete the job"

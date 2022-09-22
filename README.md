@@ -1,7 +1,14 @@
 # pennsieve-utils
 
-This repository includes some scripts that can process Pennsieve datasets on
-Linux command line.
+This repository includes some command line scripts that interact with Pennsieve
+datasets.
+
+Contents:
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+* [Data Download for HPAP Groups](#data-download-for-hpap-groups)
+* [Usage of Scripts](#usage-of-scripts)
+* [FAQ](#faq)
 
 ## Prerequisites:
 
@@ -11,22 +18,41 @@ Linux command line.
    ```
    pip install -r requirements.txt
    ```
+3. `pennsieve-agent` version `1.x`, which can be downloaded
+   [here](https://github.com/Pennsieve/pennsieve-agent/releases):
+   * `deb` package for Linux (*Debian/Ubuntu*)
+   * `pkg` package for *macOS*
+   * `msi` package for *Windows*
 
 ## Installation:
 
-To install these scripts, run the following command:
+Use the following steps to run scripts in this repository:
 
-```shell
-./install.bash <installation_dir>
-```
+1. Copy the repository to your home directory:
 
-If `<installation_dir>` is not specified, they will be installed in `$HOME/bin`.
-Please also make sure that `<installation_dir>` is in your shell's `$PATH`.
-For example, If you are using bash, add this line at the end of your `.bashrc`:
+   ```shell
+   cd; rm -rf ./pennsieve-utils
+   git clone https://github.com/faryabiLab/pennsieve-utils.git
+   ```
 
-```shell
-export PATH=<installation_dir>:$PATH
-```
+2. Add `~/pennsieve-utils` to your `PATH`. For example, If you are using `bash`,
+   add this line at the end of your `~/.bashrc`:
+
+   ```shell
+   export PATH=~/pennsieve-utils:$PATH
+   ```
+
+   After that, close your terminal and open it again to make the new `PATH` effective.
+
+3. Type `psv-upload.bash` on a new terminal to confirm the command works. If you
+   get the following error:
+
+   ```
+   psv-upload.bash: command not found
+   ```
+
+   your `PATH` is not set up correctly. Go back to step #2 and correct it.
+
 
 ## Data Download for HPAP Groups:
 
@@ -65,7 +91,7 @@ export PATH=<installation_dir>:$PATH
    ```
 
 You can also download data from the web UI at:
-[FTP downloading](https://hpap.pmacs.upenn.edu/explore/ftp)
+[SFTP downloading](https://hpap.pmacs.upenn.edu/explore/ftp)
 
 
 ## Usage of Scripts:
@@ -263,4 +289,39 @@ psv-upload.bash [local_data] [HPAP-###] [optional_destination]
               folder of HPAP-001 on Pennsieve server
     psv-upload.bash '<path>/my_data_dir' HPAP-001 'Histology/Bone Marrow'
   Note that '<path>/my_data_dir' will NOT be created on Pennsieve server.
+```
+
+
+## FAQ
+
+### 1. How to fix `command not found` error?
+
+This error means that whatever command that you typed is not found in your
+`PATH`. See step #2 in [Installation](#installation) section on how to set it
+up.
+
+### 2. How to install `realpath` on macOS?
+
+`realpath` is a command bundled in
+[GNU coreutils](https://www.gnu.org/software/coreutils/).
+It is required by `psv-upload.bash` but not included in macOS. To install it on
+macOS, you have two options:
+  * Install a package manager such as [Homebrew](https://brew.sh/) on macOS,
+    then type this command to install it:
+    ```
+	brew install coreutils
+	```
+  * Download the latest version of
+    [coreutils source code](https://ftp.gnu.org/gnu/coreutils/)
+    and compile it on macOS.
+
+### 3. How can I be sure that I am running the latest version of a script?
+
+If you have followed the steps in [Installation](#installation) section, you can
+use the following commands to update all scripts to the latest version:
+
+```shell
+cd ~/pennsieve-utils
+git pull
+pip install -r requirements.txt
 ```
