@@ -54,7 +54,7 @@ for src_dir, _, files, in os.walk(abs_src_dir):
         tokens = src_name.split('_')
         # If the number of tokens is less than 6, skip this file.
         if len(tokens) < 6:
-            print(f"Error: invalid filename ('{src_name}'), skipped")
+            print(f"Warning: invalid source filename ('{src_name}'), skipped")
             continue
 
         donor_id = tokens[0]
