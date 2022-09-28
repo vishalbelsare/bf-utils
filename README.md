@@ -291,6 +291,15 @@ psv-upload.bash [local_data] [HPAP-###] [optional_destination]
   Note that '<path>/my_data_dir' will NOT be created on Pennsieve server.
 ```
 
+### rename_imc.py
+Copy IMC `*.tiff` files to a new directory with normalized filenames and
+directory structure so that they can be uploaded to Pennsieve server by
+`psv-upload.bash`.
+
+```
+Usage: rename_imc.py <source_data_dir> <target_data_dir>
+```
+
 
 ## FAQ
 
