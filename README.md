@@ -12,7 +12,7 @@ Contents:
 
 ## Prerequisites:
 
-1. Python 3.7+
+1. Python 3.8+
 
 2. Packages in `requirements.txt`, which can be installed by:
    ```
