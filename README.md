@@ -297,7 +297,7 @@ directory structure so that they can be uploaded to Pennsieve server by
 `psv-upload.bash`.
 
 ```
-Usage: rename_imc.py <source_data_dir> <target_data_dir>
+rename_imc.py <source_data_dir> <target_data_dir>
 ```
 
 
