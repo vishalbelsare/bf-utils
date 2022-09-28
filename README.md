@@ -32,6 +32,7 @@ Use the following steps to run scripts in this repository:
 
    ```shell
    cd; rm -rf ./pennsieve-utils
+   ln -sf ~/.bashrc ~/.bash_profile
    git clone https://github.com/faryabiLab/pennsieve-utils.git
    ```
 
@@ -56,7 +57,7 @@ Use the following steps to run scripts in this repository:
 
 ## Data Download for HPAP Groups:
 
-1. Install Python 3.7 or above (https://www.python.org/downloads/)
+1. Install Python 3.8 or above (https://www.python.org/downloads/)
 
 2. Install Python packages: `pip install -r requirements.txt`
 
