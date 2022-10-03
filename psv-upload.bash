@@ -90,6 +90,22 @@ function get_psv_id() {
 }
 
 
+# This function creates the manifest. It accepts either one or two arguments:
+#   - arg #1: local path of files that will be uploaded
+#   - arg #2: (optional) path on Pennsieve server
+function create_manifest() {
+    if [[ -z "$2" ]]; then
+	pennsieve manifest create "$1"
+    else
+	pennsieve manifest create "$1" -t "$2"
+    fi
+}
+
+
+#************************************************************************
+#                   main program
+#************************************************************************
+
 # Ensure that "pennsieve" command is available
 which pennsieve &> /dev/null
 if [[ $? -ne 0 ]]; then
@@ -120,7 +136,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Ensure that "input_local_path" exists in local filesystem:
-input_local_path=$(realpath $1)
+input_local_path=$(realpath "$1")
 if [[ ! -e "${input_local_path}" ]]; then
     echo "Error: '$1' not found on local computer"
     exit 1
@@ -140,7 +156,8 @@ fi
 
 # Get input dataset's internal name
 input_psv_dataset="$2"
-dataset_line=$(pennsieve dataset find "${input_psv_dataset}" | grep -w "${input_psv_dataset}")
+dataset_line=$(pennsieve dataset find "${input_psv_dataset}" 2>/dev/null | \
+		   grep -w "${input_psv_dataset}")
 
 # Exit if input dataset name is not found in Pennsieve server
 if [[ "$?" -ne 0 ]]; then
@@ -154,15 +171,9 @@ dataset_name=$(trim_str ${raw_dataset_name})
 # Set current working dataset on Pennsieve server
 pennsieve dataset use "${dataset_name}" > /dev/null
 
-# Create new manifest
-create_manifest_cmd="pennsieve manifest create ${input_local_path}"
-if [[ "$#" -eq 3 ]]; then
-    create_manifest_cmd="${create_manifest_cmd} -t $3"
-fi
-
-# Create manifest. If the output string includes "failed", manifest is not
-# created successfully.
-mf_status=$(${create_manifest_cmd})
+# Create manifest.
+# If the output includes "failed", manifest is not created successfully.
+mf_status=$(create_manifest "${input_local_path}" "$3")
 mf_id=$(echo ${mf_status} | awk '{print $3}')
 if (echo ${mf_status} | grep "failed" &> /dev/null); then
     echo "Error: failed to create manifest"
