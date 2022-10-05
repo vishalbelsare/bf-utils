@@ -58,7 +58,7 @@ for src_dir, _, files, in os.walk(abs_src_dir):
             continue
 
         donor_id = tokens[0]
-        anatomy = tokens[2]
+        anatomy = tokens[2].replace('Pancreas', 'pancreas')
         if anatomy == "Indeterminate-of-pancreas":
             anatomy = "Pancreas-unsure-of-orientation"
         region = tokens[3]
